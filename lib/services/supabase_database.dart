@@ -1,6 +1,10 @@
+import 'package:showerthing/constants.dart';
 import 'package:showerthing/models/profile.dart';
+import 'package:showerthing/models/session.dart';
 import 'package:showerthing/objects/responses.dart';
+import 'package:showerthing/services/supabase_auth.dart';
 import 'package:showerthing/services/supabase_general.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service for database related Supabase stuff.
 class SupaBaseDatabaseService {
@@ -16,6 +20,18 @@ class SupaBaseDatabaseService {
   /// Updates a profile with id in the database.
   static Future<BackendResponse> updateProfile(Profile profile) async {
     final response = await SupaBaseService.supabase.from('profiles').upsert(profile.toJson()).execute();
+    return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
+  }
+
+  /// Inserts a session in the database.
+  static Future<BackendResponse> insertSession(ShowerSession session) async {
+    final response = await SupaBaseService.supabase.from('sessions').upsert(session.toJson()).execute();
+    return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
+  }
+
+  /// Deletes all sessions the database.
+  static Future<BackendResponse> deleteAllSessionsFromCurrentUser() async {
+    final response = await SupaBaseService.supabase.from('sessions').delete().eq('user_id', SupaBaseAuthService.auth.currentUser!.id).execute();
     return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
   }
 }

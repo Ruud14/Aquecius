@@ -1,6 +1,7 @@
 import 'package:Aquecius/widgets/buttons.dart';
 import 'package:Aquecius/widgets/dropdowns.dart';
 import 'package:Aquecius/widgets/textfields.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/services/supabase_auth.dart';
@@ -28,6 +29,15 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   /// Activity level selected in dropdown.
   ActivityLevel selectedActivityLevel = ActivityLevel.lightly_active;
 
+  /// Selected value for germy worker.
+  bool germyWorker = false;
+
+  /// HairType selected in dropdown.
+  HairType selectedHairType = HairType.fromName("wavy");
+
+  /// HairTexture selected in dropdown.
+  HairTexture selectedHairTexture = HairTexture.fromName("medium");
+
   /// The profile of the current user.
   Profile? profile;
 
@@ -45,6 +55,14 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
       if (profile!.activityLevel != null) {
         selectedActivityLevel = profile!.activityLevel!;
       }
+      if (profile!.hairType != null) {
+        selectedHairType = profile!.hairType!;
+      }
+      if (profile!.hairTexture != null) {
+        selectedHairTexture = profile!.hairTexture!;
+      }
+
+      germyWorker = profile!.germyWorker;
     } else {
       if (mounted) {
         context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
@@ -64,6 +82,9 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
     profile!.username = usernameController.text;
     profile!.updatedAt = DateTime.now();
     profile!.activityLevel = selectedActivityLevel;
+    profile!.hairType = selectedHairType;
+    profile!.hairTexture = selectedHairTexture;
+    profile!.germyWorker = germyWorker;
 
     final response = await SupaBaseDatabaseService.updateProfile(profile!);
     if (mounted) {
@@ -188,6 +209,103 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                       });
                     }
                   },
+                ),
+                SizedBox(
+                  height: 30.h,
+                ),
+                // Germy worker
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "Germy worker",
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          "You come in contact with lots of germs",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    CupertinoSwitch(
+                        value: germyWorker,
+                        thumbColor: Theme.of(context).colorScheme.secondary,
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        trackColor: Colors.white.withOpacity(0.5),
+                        onChanged: (val) {
+                          setState(() {
+                            germyWorker = val;
+                          });
+                        })
+                  ],
+                ),
+
+                SizedBox(
+                  height: 30.h,
+                ),
+                const Text(
+                  "Hair type & texture",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                // Hair type & texture row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // HairType dropdown
+                    SizedBox(
+                      width: 170.sp,
+                      child: CustomDropdown(
+                        items: <String>['straight', 'wavy', 'curly', 'coily'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value.substring(0, 1).toUpperCase() + value.substring(1),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        value: selectedHairType.name,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedHairType = HairType.fromName(value);
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    // HairTexture dropdown
+                    SizedBox(
+                      width: 170.sp,
+                      child: CustomDropdown(
+                        items: <String>['fine', 'medium', 'coarse'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value.substring(0, 1).toUpperCase() + value.substring(1),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        value: selectedHairTexture.name,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedHairTexture = HairTexture.fromName(value);
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 100.h,

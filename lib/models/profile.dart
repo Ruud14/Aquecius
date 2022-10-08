@@ -110,9 +110,9 @@ class HairTexture {
 
   factory HairTexture.fromName(String name) {
     switch (name) {
-      case "Fine":
-      case "Medium":
-      case "Coarse":
+      case "fine":
+      case "medium":
+      case "coarse":
         return HairTexture(name: name);
       default:
         throw Exception("Invalid HairTexture");

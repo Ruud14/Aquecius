@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Custom wrapper for every page.
 /// Includes safeArea, Scaffold, and Scrollability.
@@ -18,7 +19,7 @@ class ScrollablePage extends StatelessWidget {
           body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+              padding: EdgeInsets.symmetric(vertical: 18 + 25.sp, horizontal: 12 + 35.sp),
               child: child,
             ),
           ),

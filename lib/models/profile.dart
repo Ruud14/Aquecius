@@ -2,7 +2,7 @@
 class Profile {
   String id;
   String username;
-  String updatedAt;
+  DateTime updatedAt;
   String? phone;
   ActivityLevel? activityLevel;
   HairType? hairType;
@@ -22,7 +22,7 @@ class Profile {
   Profile.fromJson(String id, Map<String, dynamic> json)
       : this.id = id,
         username = json['username'],
-        updatedAt = json['updated_at'],
+        updatedAt = DateTime.parse(json['updated_at']),
         phone = json['phone'],
         hairType = json['hair_type'] == null ? null : HairType.fromName(json['hair_type']),
         hairTexture = json['hair_texture'] == null ? null : HairTexture.fromName(json['hair_texture']),
@@ -37,7 +37,7 @@ class Profile {
       "hair_texture": hairTexture?.name,
       "activity_level": activityLevel?.name,
       "phone": phone,
-      "updated_at": updatedAt,
+      "updated_at": updatedAt.toIso8601String(),
       "germy_worker": germyWorker,
     };
   }
@@ -76,6 +76,9 @@ class ActivityLevel {
   static ActivityLevel moderately_active = ActivityLevel(name: "moderately_active", exerciseFrequencyPerWeek: "3-5x", stepsPerDay: "10k-15k");
   static ActivityLevel highly_active = ActivityLevel(name: "highly_active", exerciseFrequencyPerWeek: "6-7x", stepsPerDay: "15k-20k");
   static ActivityLevel extremely_active = ActivityLevel(name: "extremely_active", exerciseFrequencyPerWeek: "7+x", stepsPerDay: "25k+");
+
+  String get dropdownString =>
+      "${name.split('_').map((e) => e.substring(0, 1).toUpperCase() + e.substring(1)).join(' ')}  -  $exerciseFrequencyPerWeek/week  -  $stepsPerDay";
 }
 
 class HairType {

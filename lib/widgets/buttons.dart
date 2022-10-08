@@ -48,11 +48,13 @@ class FourDotsButton extends StatelessWidget {
 
 class PurpleButton extends StatelessWidget {
   final void Function()? onPressed;
+  final int extraHorizontalPadding;
   final String text;
   const PurpleButton({
     super.key,
     this.onPressed,
     required this.text,
+    this.extraHorizontalPadding = 0,
   });
 
   @override
@@ -65,7 +67,7 @@ class PurpleButton extends StatelessWidget {
           color: Theme.of(context).colorScheme.secondary,
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: (15 + extraHorizontalPadding).toDouble(), vertical: 10),
           child: Text(text, style: const TextStyle(color: Colors.white)),
         ),
       ),

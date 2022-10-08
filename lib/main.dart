@@ -39,6 +39,11 @@ class MyApp extends StatelessWidget {
             pageTransitionsTheme: const PageTransitionsTheme(builders: {
               TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
             }),
+            textSelectionTheme: const TextSelectionThemeData(
+              cursorColor: Color(0xFF475080),
+              selectionColor: Color(0xFF475080),
+              selectionHandleColor: Color(0xFF475080),
+            ),
             colorScheme: const ColorScheme(
               background: Color(0xFFB5CDC2),
               brightness: Brightness.light,

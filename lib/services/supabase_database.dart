@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import 'package:Aquecius/constants.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/models/session.dart';
 import 'package:Aquecius/objects/responses.dart';
@@ -15,7 +13,16 @@ class SupaBaseDatabaseService {
   /// else it will be null, and message will be set to the error message.
   static Future<BackendResponse> getProfile(String id) async {
     final response = await SupaBaseService.supabase.from('profiles').select().eq('id', id).single().execute();
-    return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
+    Profile? profile;
+    dynamic error = response.error;
+    if (error == null) {
+      try {
+        profile = Profile.fromJson(id, response.data);
+      } on TypeError catch (e) {
+        error = "Profile corrupted. $e";
+      }
+    }
+    return BackendResponse(isSuccessful: response.error == null, data: profile, message: response.error?.message);
   }
 
   /// Gets the most recent session from the current user.

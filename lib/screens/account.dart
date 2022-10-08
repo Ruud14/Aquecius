@@ -16,39 +16,41 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   final _usernameController = TextEditingController();
-  final _websiteController = TextEditingController();
-  var _loading = false;
+  var isLoading = false;
+
+  /// The profile of the current user.
+  Profile? profile;
 
   /// Get the profile from the database.
-  Future<void> _getProfile(String userId) async {
+  Future<void> getProfile(String userId) async {
     setState(() {
-      _loading = true;
+      isLoading = true;
     });
-    final response = await SupaBaseDatabaseService.getProfile(userId);
-    if (response.isSuccessful) {
-      final profile = Profile.fromJson(userId, response.data);
-      _usernameController.text = profile.username;
-      _websiteController.text = profile.website;
+
+    // Get the user data.
+    final profileFetchResult = await SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!);
+    if (profileFetchResult.isSuccessful) {
+      profile = profileFetchResult.data;
+      _usernameController.text = profile!.username;
     } else {
       if (mounted) {
-        context.showErrorSnackBar(message: response.message ?? "Getting profile failed.");
+        context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
       }
     }
     setState(() {
-      _loading = false;
+      isLoading = false;
     });
   }
 
   /// Update the profile in the database.
-  Future<void> _updateProfile() async {
+  Future<void> updateProfile() async {
     setState(() {
-      _loading = true;
+      isLoading = true;
     });
 
     final profile = Profile(
       id: supabase.auth.currentUser!.id,
       username: _usernameController.text,
-      website: _websiteController.text,
       updatedAt: DateTime.now().toIso8601String(),
     );
 
@@ -62,29 +64,21 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
     }
 
     setState(() {
-      _loading = false;
+      isLoading = false;
     });
-  }
-
-  Future<void> _signOut() async {
-    final response = await SupaBaseAuthService.signOut();
-    if (!response.isSuccessful && mounted) {
-      context.showErrorSnackBar(message: response.message ?? "SignOut failed.");
-    }
   }
 
   @override
   void onAuthenticated(Session session) {
     final user = session.user;
     if (user != null) {
-      _getProfile(user.id);
+      getProfile(user.id);
     }
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
-    _websiteController.dispose();
     super.dispose();
   }
 
@@ -98,14 +92,20 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
             decoration: const InputDecoration(labelText: 'User Name'),
           ),
           const SizedBox(height: 18),
-          TextFormField(
-            controller: _websiteController,
-            decoration: const InputDecoration(labelText: 'Website'),
-          ),
           const SizedBox(height: 18),
-          ElevatedButton(onPressed: _updateProfile, child: Text(_loading ? 'Saving...' : 'Update')),
+          ElevatedButton(
+              onPressed: updateProfile,
+              child: Text(
+                isLoading ? 'Saving...' : 'Update',
+                style: const TextStyle(color: Colors.white),
+              )),
           const SizedBox(height: 18),
-          ElevatedButton(onPressed: _signOut, child: const Text('Sign Out')),
+          const ElevatedButton(
+              onPressed: SupaBaseAuthService.signOut,
+              child: Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.white),
+              )),
         ],
       ),
     );

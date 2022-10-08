@@ -1,4 +1,6 @@
 import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/models/profile.dart';
+import 'package:Aquecius/services/supabase_auth.dart';
 import 'package:Aquecius/services/supabase_database.dart';
 import 'package:Aquecius/widgets/buttons.dart';
 import 'package:Aquecius/widgets/cards.dart';
@@ -19,6 +21,9 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
   /// The last session from the current user.
   ShowerSession? lastSession;
 
+  /// The profile of the current user.
+  Profile? profile;
+
   /// Whether data from the database is being loaded.
   bool isLoading = true;
 
@@ -30,7 +35,22 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
   /// Fetches all necessary data (for this page) from the database.
   void fetchData() async {
-    // TODO: get the user data.
+    // Start loading.
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    // Get the user data.
+    final profileFetchResult = await SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!);
+    if (profileFetchResult.isSuccessful) {
+      profile = profileFetchResult.data;
+    } else {
+      if (mounted) {
+        context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
+      }
+    }
+
     // Get the last session data.
     final lastSessionFetchResult = await SupaBaseDatabaseService.getLastSession();
     if (lastSessionFetchResult.isSuccessful) {
@@ -85,13 +105,20 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const FourDotsButton(),
-                    CircleAvatar(
-                      radius: 25.sp,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: Icon(
-                        Icons.person,
-                        size: 29,
-                        color: Theme.of(context).colorScheme.secondary,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/account").then((value) {
+                          fetchData();
+                        });
+                      },
+                      child: CircleAvatar(
+                        radius: 25.sp,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: Icon(
+                          Icons.person,
+                          size: 29,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
                     )
                   ],
@@ -104,7 +131,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Hi Peter 👋",
+                      "Hi ${profile!.username} 👋",
                       style: TextStyle(fontFamily: "Lato", fontWeight: FontWeight.w900, fontSize: 36.sp),
                     ),
                     SizedBox(

@@ -19,4 +19,6 @@ class SupaBaseAuthService {
     final error = response.error;
     return BackendResponse(isSuccessful: error == null, message: response.error?.message);
   }
+
+  static String? get uid => auth.currentUser?.id;
 }

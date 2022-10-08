@@ -16,6 +16,7 @@ class ScrollablePage extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.background,
           appBar: appBar,
           body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               child: child,

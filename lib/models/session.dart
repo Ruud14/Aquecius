@@ -1,11 +1,10 @@
-import 'dart:ffi';
-
 /// Model from session table.
 class ShowerSession {
   String? id;
-  String startedAt;
-  String endedAt;
+  DateTime startedAt;
+  DateTime endedAt;
   double consumption;
+  List<double> temperatures;
   String userId;
 
   ShowerSession({
@@ -14,21 +13,27 @@ class ShowerSession {
     required this.endedAt,
     required this.consumption,
     required this.userId,
+    required this.temperatures,
   });
 
   ShowerSession.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        startedAt = json['started_at'],
-        endedAt = json['ended_at'],
+        startedAt = DateTime.parse(json['started_at']),
+        endedAt = DateTime.parse(json['ended_at']),
         consumption = json['consumption'].toDouble(),
+        temperatures = List<double>.from(json['temperatures']),
         userId = json['user_id'];
 
   Map<String, dynamic> toJson() {
     return {
-      "started_at": startedAt,
-      "ended_at": endedAt,
+      "started_at": startedAt.toIso8601String(),
+      "ended_at": endedAt.toIso8601String(),
       "consumption": consumption,
+      "temperatures": temperatures,
       "user_id": userId,
     };
   }
+
+  int get averageTemperature => (temperatures.reduce((a, b) => a + b) / temperatures.length).round();
+  int get durationMinutes => endedAt.difference(startedAt).inMinutes.abs();
 }

@@ -35,12 +35,6 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
   /// Fetches all necessary data (for this page) from the database.
   void fetchData() async {
-    // Start loading.
-    if (mounted) {
-      setState(() {
-        isLoading = true;
-      });
-    }
     // Get the user data.
     final profileFetchResult = await SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!);
     if (profileFetchResult.isSuccessful) {
@@ -147,164 +141,169 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                   height: 20.h,
                 ),
                 // Shower summary card
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(22)),
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  height: 138.h,
-                  child: Padding(
-                    padding: EdgeInsets.all(20.sp),
-                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                      // Stats
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Last shower",
-                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 3,
-                          ),
-                          lastSession == null
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : Expanded(
-                                  child: Row(
-                                    children: [
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Consumption
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Image.asset(
-                                                    "assets/images/waterdrop.png",
-                                                    width: 22.sp,
-                                                    height: 22.sp,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 3.sp,
-                                                  ),
-                                                  Text(
-                                                    "${lastSession!.consumption.round()} L",
-                                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          // Temperature
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Image.asset(
-                                                    "assets/images/fire.png",
-                                                    width: 22.sp,
-                                                    height: 22.sp,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 3.sp,
-                                                  ),
-                                                  Text(
-                                                    "${lastSession!.averageTemperature} °C ",
-                                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          // Time
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Image.asset(
-                                                    "assets/images/time.png",
-                                                    width: 22.sp,
-                                                    height: 22.sp,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 3.sp,
-                                                  ),
-                                                  Text(
-                                                    "${lastSession!.durationMinutes} min",
-                                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: 20.sp,
-                                      ),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: const [
-                                          // Consumption percentage
-                                          Text(
-                                            "+20%",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                          // Temperature percentage
-                                          Text(
-                                            "-2%",
-                                            style: TextStyle(color: Colors.green),
-                                          ),
-                                          // Time percentage
-                                          Text(
-                                            "+12%",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                        ],
-                      ),
-
-                      // Start shower button
-                      GestureDetector(
-                        onTap: startShower,
-                        child: Row(
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, "/summary");
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(22)),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    height: 138.h,
+                    child: Padding(
+                      padding: EdgeInsets.all(20.sp),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                        // Stats
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  "assets/images/shower.png",
-                                  width: 49.sp,
-                                  height: 49.sp,
-                                  color: Colors.white,
-                                ),
-                                const Text(
-                                  "Start",
-                                  style: TextStyle(color: Colors.white),
-                                )
-                              ],
+                            const Text(
+                              "Last shower",
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(
-                              width: 30.sp,
-                            )
+                            const SizedBox(
+                              height: 3,
+                            ),
+                            lastSession == null
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Expanded(
+                                    child: Row(
+                                      children: [
+                                        Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            // Consumption
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/images/waterdrop.png",
+                                                      width: 22.sp,
+                                                      height: 22.sp,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 3.sp,
+                                                    ),
+                                                    Text(
+                                                      "${lastSession!.consumption.round()} L",
+                                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            // Temperature
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/images/fire.png",
+                                                      width: 22.sp,
+                                                      height: 22.sp,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 3.sp,
+                                                    ),
+                                                    Text(
+                                                      "${lastSession!.averageTemperature} °C ",
+                                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            // Time
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/images/time.png",
+                                                      width: 22.sp,
+                                                      height: 22.sp,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 3.sp,
+                                                    ),
+                                                    Text(
+                                                      "${lastSession!.durationMinutes} min",
+                                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          width: 20.sp,
+                                        ),
+                                        Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: const [
+                                            // Consumption percentage
+                                            Text(
+                                              "+20%",
+                                              style: TextStyle(color: Colors.red),
+                                            ),
+                                            // Temperature percentage
+                                            Text(
+                                              "-2%",
+                                              style: TextStyle(color: Colors.green),
+                                            ),
+                                            // Time percentage
+                                            Text(
+                                              "+12%",
+                                              style: TextStyle(color: Colors.red),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                           ],
                         ),
-                      ),
-                    ]),
+
+                        // Start shower button
+                        GestureDetector(
+                          onTap: startShower,
+                          child: Row(
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/shower.png",
+                                    width: 49.sp,
+                                    height: 49.sp,
+                                    color: Colors.white,
+                                  ),
+                                  const Text(
+                                    "Start",
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                width: 30.sp,
+                              )
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -340,11 +339,39 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                   shrinkWrap: true,
                   mainAxisSpacing: 25.sp,
                   crossAxisSpacing: 25.sp,
-                  children: const [
-                    HomePageCard(image: "assets/images/waterdrop.png", text: "62 L", subscript: "Past 7 days"),
-                    HomePageCard(image: "assets/images/time.png", text: "12 min", subscript: "Average"),
-                    HomePageCard(image: "assets/images/fire.png", text: "35 °C", subscript: "Average"),
-                    HomePageCard(image: "assets/images/flag.png", text: "#31", subscript: "In Family"),
+                  children: [
+                    HomePageCard(
+                      image: "assets/images/waterdrop.png",
+                      text: "62 L",
+                      subscript: "Past 7 days",
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/statistics");
+                      },
+                    ),
+                    HomePageCard(
+                      image: "assets/images/time.png",
+                      text: "12 min",
+                      subscript: "Average",
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/statistics");
+                      },
+                    ),
+                    HomePageCard(
+                      image: "assets/images/fire.png",
+                      text: "35 °C",
+                      subscript: "Average",
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/statistics");
+                      },
+                    ),
+                    HomePageCard(
+                      image: "assets/images/flag.png",
+                      text: "#31",
+                      subscript: "In Family",
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/leaderboard");
+                      },
+                    ),
                   ],
                 ),
               ]),

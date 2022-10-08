@@ -1,3 +1,6 @@
+import 'package:Aquecius/screens/leaderboard.dart';
+import 'package:Aquecius/screens/statistics.dart';
+import 'package:Aquecius/screens/summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +36,9 @@ class MyApp extends StatelessWidget {
           title: 'Shower Thing',
           theme: ThemeData(
             fontFamily: 'Lato',
+            pageTransitionsTheme: const PageTransitionsTheme(builders: {
+              TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            }),
             colorScheme: const ColorScheme(
               background: Color(0xFFB5CDC2),
               brightness: Brightness.light,
@@ -53,6 +59,9 @@ class MyApp extends StatelessWidget {
             '/login': (_) => const LoginScreen(),
             '/account': (_) => const AccountScreen(),
             '/home': (_) => const HomeScreen(),
+            '/summary': (_) => const SummaryScreen(),
+            '/statistics': (_) => const StatisticsScreen(),
+            '/leaderboard': (_) => const LeaderBoardScreen(),
           },
         );
       },

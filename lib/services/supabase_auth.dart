@@ -1,5 +1,5 @@
-import 'package:showerthing/constants.dart';
-import 'package:showerthing/objects/responses.dart';
+import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/objects/responses.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service for authentication related Supabase stuff.

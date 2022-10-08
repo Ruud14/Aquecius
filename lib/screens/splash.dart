@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:showerthing/states/auth_state.dart';
+import 'package:Aquecius/states/auth_state.dart';
 
 /// Screen for loading.
 class SplashScreen extends StatefulWidget {

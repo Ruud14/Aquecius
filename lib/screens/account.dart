@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:showerthing/models/profile.dart';
-import 'package:showerthing/services/supabase_auth.dart';
-import 'package:showerthing/services/supabase_database.dart';
-import 'package:showerthing/wrappers/scrollable_page.dart';
+import 'package:Aquecius/models/profile.dart';
+import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/services/supabase_database.dart';
+import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:supabase/supabase.dart';
-import 'package:showerthing/states/auth_required_state.dart';
-import 'package:showerthing/constants.dart';
+import 'package:Aquecius/states/auth_required_state.dart';
+import 'package:Aquecius/constants.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key}) : super(key: key);

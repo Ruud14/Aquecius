@@ -1,12 +1,10 @@
-import 'dart:math';
+import 'package:Aquecius/widgets/buttons.dart';
+import 'package:Aquecius/widgets/cards.dart';
 import 'package:flutter/material.dart';
-import 'package:showerthing/constants.dart';
-import 'package:showerthing/models/session.dart';
-import 'package:showerthing/services/supabase_auth.dart';
-import 'package:showerthing/services/supabase_database.dart';
-import 'package:showerthing/states/auth_required_state.dart';
-import 'package:showerthing/wrappers/scrollable_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:Aquecius/models/session.dart';
+import 'package:Aquecius/states/auth_required_state.dart';
+import 'package:Aquecius/wrappers/scrollable_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,99 +18,246 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
   @override
   void initState() {
-    sessionsStream =
-        supabase.from('sessions').stream(['id']).order('started_at').execute().map((maps) => maps.map((map) => ShowerSession.fromJson(map)).toList());
     super.initState();
+  }
+
+  void startShower() {
+    // TODO: Implement shower starting.
   }
 
   @override
   Widget build(BuildContext context) {
     return ScrollablePage(
-      appBar: AppBar(
-        title: const Text("Shower Thing App Test"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "/account");
-              },
-              icon: const Icon(Icons.person))
-        ],
-      ),
-      child: Column(
-        children: [
-          const Text("Realtime view of database"),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 35.sp, vertical: 25.sp),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Profile icon row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FourDotsButton(),
+              CircleAvatar(
+                radius: 30.sp,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Icon(
+                  Icons.person,
+                  size: 29,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 20.h,
+          ),
+          // Welcome text
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Hi Peter 👋",
+                style: TextStyle(fontFamily: "Lato", fontWeight: FontWeight.w900, fontSize: 36.sp),
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              Text(
+                "Welcome to Aquecius",
+                style: TextStyle(fontSize: 20.sp),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 20.h,
+          ),
+          // Shower summary card
           Container(
-            height: 500,
-            width: 1000,
-            color: Colors.green,
-            child: StreamBuilder<List<ShowerSession>>(
-              stream: sessionsStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final sessions = snapshot.data!;
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: sessions
-                          .map((e) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(22)),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            height: 138.h,
+            child: Padding(
+              padding: EdgeInsets.all(20.sp),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                // Stats
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Last shower",
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 3,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Consumption
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
                                     children: [
-                                      const Text("Shower session"),
-                                      Text("Consumption: ${e.consumption} Liters "),
-                                      Text("Duration: ${DateTime.parse(e.endedAt).difference(DateTime.parse(e.startedAt)).inMinutes} Minutes")
+                                      Image.asset(
+                                        "assets/images/waterdrop.png",
+                                        width: 22.sp,
+                                        height: 22.sp,
+                                      ),
+                                      const Text(
+                                        "69L",
+                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                      ),
                                     ],
                                   ),
-                                ),
-                              ))
-                          .toList(),
+                                ],
+                              ),
+                              // Temperature
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/images/fire.png",
+                                        width: 22.sp,
+                                        height: 22.sp,
+                                      ),
+                                      const Text(
+                                        "34 °C ",
+                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              // Time
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/images/time.png",
+                                        width: 22.sp,
+                                        height: 22.sp,
+                                      ),
+                                      const Text(
+                                        "14 min",
+                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 20.sp,
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              // Consumption percentage
+                              Text(
+                                "+20%",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              // Temperature percentage
+                              Text(
+                                "-2%",
+                                style: TextStyle(color: Colors.green),
+                              ),
+                              // Time percentage
+                              Text(
+                                "+12%",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                } else {
-                  return const FittedBox(child: CircularProgressIndicator());
-                }
-              },
+                  ],
+                ),
+
+                // Start shower button
+                GestureDetector(
+                  onTap: startShower,
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/images/shower.png",
+                            width: 49.sp,
+                            height: 49.sp,
+                            color: Colors.white,
+                          ),
+                          const Text(
+                            "Start",
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        width: 30.sp,
+                      )
+                    ],
+                  ),
+                ),
+              ]),
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              /// Random number generator.
-              Random _rnd = Random();
-
-              DateTime startTime = DateTime.now().add(Duration(minutes: -20 + _rnd.nextInt(40)));
-              DateTime endTime = startTime.add(Duration(minutes: _rnd.nextInt(50)));
-
-              final session = ShowerSession(
-                id: null,
-                startedAt: startTime.toIso8601String(),
-                endedAt: endTime.toIso8601String(),
-                consumption: _rnd.nextInt(100).toDouble(),
-                userId: SupaBaseAuthService.auth.currentUser!.id,
-              );
-
-              final response = await SupaBaseDatabaseService.insertSession(session);
-              if (mounted) {
-                if (response.isSuccessful) {
-                  context.showSnackBar(message: "Successfully created shower session!");
-                } else {
-                  context.showErrorSnackBar(message: response.message ?? "Creating shower session failed.");
-                }
-              }
-            },
-            child: const Text("Add random shower session to the database"),
+          SizedBox(
+            height: 20.h,
           ),
-          ElevatedButton(
-            style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
-            onPressed: () {
-              SupaBaseDatabaseService.deleteAllSessionsFromCurrentUser();
-            },
-            child: const Text("Clear all sessions from the database"),
-          )
-        ],
+          // Your statistics
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 30.sp,
+                    color: Colors.black,
+                  ),
+                  children: const <TextSpan>[
+                    TextSpan(text: 'Your '),
+                    TextSpan(text: 'Statistics', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              const PurpleButton(text: "Details"),
+            ],
+          ),
+          SizedBox(
+            height: 20.h,
+          ),
+          // Cards
+          GridView.count(
+            crossAxisCount: 2,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            mainAxisSpacing: 25.sp,
+            crossAxisSpacing: 25.sp,
+            children: const [
+              HomePageCard(image: "assets/images/waterdrop.png", text: "62 L", subscript: "Past 7 days"),
+              HomePageCard(image: "assets/images/time.png", text: "12 min", subscript: "Average"),
+              HomePageCard(image: "assets/images/fire.png", text: "35 °C", subscript: "Average"),
+              HomePageCard(image: "assets/images/flag.png", text: "#31", subscript: "In Family"),
+            ],
+          ),
+        ]),
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:showerthing/constants.dart';
-import 'package:showerthing/services/supabase_auth.dart';
-import 'package:showerthing/states/auth_state.dart';
-import 'package:showerthing/wrappers/scrollable_page.dart';
+import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/states/auth_state.dart';
+import 'package:Aquecius/wrappers/scrollable_page.dart';
 
 /// Screen for authentication with magic link.
 class LoginScreen extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:showerthing/constants.dart';
+import 'package:Aquecius/constants.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

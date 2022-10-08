@@ -1,9 +1,9 @@
-import 'package:showerthing/constants.dart';
-import 'package:showerthing/models/profile.dart';
-import 'package:showerthing/models/session.dart';
-import 'package:showerthing/objects/responses.dart';
-import 'package:showerthing/services/supabase_auth.dart';
-import 'package:showerthing/services/supabase_general.dart';
+import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/models/profile.dart';
+import 'package:Aquecius/models/session.dart';
+import 'package:Aquecius/objects/responses.dart';
+import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/services/supabase_general.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service for database related Supabase stuff.

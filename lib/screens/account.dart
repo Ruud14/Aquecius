@@ -41,6 +41,9 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   /// The profile of the current user.
   Profile? profile;
 
+  /// Whether this page is used for the initial user profile setup.
+  bool isInitialSetup = false;
+
   /// Get the profile from the database.
   Future<void> getProfile(String userId) async {
     setState(() {
@@ -64,9 +67,9 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
 
       germyWorker = profile!.germyWorker;
     } else {
-      if (mounted) {
-        context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
-      }
+      // Start the initial setup if the user has no profile.
+      isInitialSetup = true;
+      profile = Profile(id: SupaBaseAuthService.uid!, username: "", updatedAt: DateTime.now());
     }
     setState(() {
       isLoading = false;
@@ -74,7 +77,14 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   }
 
   /// Update the profile in the database.
-  Future<void> updateProfile() async {
+  /// Returns true if successful, false otherwise.
+  Future<bool> updateProfile() async {
+    // Check for valid input.
+    if (usernameController.text.isEmpty) {
+      context.showErrorSnackBar(message: "Please enter a username");
+      return false;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -91,19 +101,20 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
       if (response.isSuccessful) {
         context.showSnackBar(message: "Successfully updated profile!");
       } else {
-        context.showErrorSnackBar(message: response.message ?? "Getting profile failed.");
+        context.showErrorSnackBar(message: response.message ?? "Updating profile failed.");
       }
     }
 
     setState(() {
       isLoading = false;
     });
+    return response.isSuccessful;
   }
 
   @override
   void onAuthenticated(Session session) {
     final user = session.user;
-    if (user != null) {
+    if (user != null && !isInitialSetup) {
       getProfile(user.id);
     }
   }
@@ -132,12 +143,15 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                   children: [
                     // Back button
                     InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Icon(
+                        onTap: isInitialSetup
+                            ? () {}
+                            : () {
+                                Navigator.pop(context);
+                              },
+                        child: Icon(
                           Icons.arrow_back,
                           size: 36,
+                          color: isInitialSetup ? Colors.transparent : Colors.black,
                         )),
                     Text(
                       "About you",
@@ -314,7 +328,14 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                 Center(
                   child: PurpleButton(
                     text: "Save",
-                    onPressed: updateProfile,
+                    onPressed: () {
+                      updateProfile().then((value) {
+                        // Navigate to the homepage if updating was successful.
+                        if (value) {
+                          Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
+                        }
+                      });
+                    },
                     extraHorizontalPadding: 40,
                   ),
                 ),

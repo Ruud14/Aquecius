@@ -1,3 +1,5 @@
+import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/services/supabase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:Aquecius/constants.dart';
 import 'package:supabase/supabase.dart';
@@ -14,7 +16,17 @@ class AuthState<T extends StatefulWidget> extends SupabaseAuthState<T> {
   @override
   void onAuthenticated(Session session) {
     if (mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      // Check if the user already has a profile. If not, require the user to make one.
+      SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!).then((value) {
+        if (!value.isSuccessful) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/account',
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        }
+      });
     }
   }
 

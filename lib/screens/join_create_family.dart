@@ -143,7 +143,7 @@ class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamil
                       height: 20.h,
                     ),
                     Text(
-                      "If you you've just bought this product and want to set it up. Click 'Setup shower' below.",
+                      "If you've just bought this product and want to set it up. Click 'Setup shower' below.",
                       style: TextStyle(
                         fontSize: 16.sp,
                       ),

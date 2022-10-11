@@ -112,6 +112,7 @@ class _LoginScreenState extends AuthState<LoginScreen> {
           // Email textfield
           CustomTextField(
             controller: _emailController,
+            hintText: "your@email.com",
           ),
           SizedBox(
             height: 20.h,
@@ -127,6 +128,7 @@ class _LoginScreenState extends AuthState<LoginScreen> {
           CustomTextField(
             controller: _passwordController,
             isPassword: true,
+            hintText: "password",
           ),
           SizedBox(
             height: 20.h,
@@ -146,6 +148,7 @@ class _LoginScreenState extends AuthState<LoginScreen> {
                     CustomTextField(
                       controller: _confirmationPasswordController,
                       isPassword: true,
+                      hintText: "confirm password",
                     ),
                     SizedBox(
                       height: 20.h,

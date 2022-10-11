@@ -16,10 +16,7 @@ class AuthState<T extends StatefulWidget> extends SupabaseAuthState<T> {
   @override
   void onAuthenticated(Session session) {
     if (mounted) {
-      // Check if the user already has a profile. If not, require the user to make one.
-      SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!).then((value) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-      });
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 

@@ -3,9 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
+  final bool isPassword;
   const CustomTextField({
     super.key,
     this.controller,
+    this.isPassword = false,
   });
 
   @override
@@ -13,6 +15,9 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  /// Whether the password is shown.
+  bool showPassword = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,10 +27,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
         color: Theme.of(context).colorScheme.primary,
       ),
       child: TextFormField(
+        obscureText: !showPassword && widget.isPassword,
         style: TextStyle(color: Colors.white, fontSize: 16.sp),
         controller: widget.controller,
-        decoration: const InputDecoration(
-          enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+        decoration: InputDecoration(
+          enabledBorder: const UnderlineInputBorder(borderSide: BorderSide.none),
+          suffixIconConstraints: const BoxConstraints(maxHeight: 20),
+          suffixIcon: widget.isPassword
+              ? InkWell(
+                  child: Icon(
+                    showPassword ? Icons.visibility : Icons.visibility_off,
+                    color: Theme.of(context).colorScheme.secondary,
+                    size: 20,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      showPassword = !showPassword;
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );

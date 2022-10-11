@@ -75,7 +75,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
       lastSession = lastSessionFetchResult.data;
     } else {
       if (mounted) {
-        context.showErrorSnackBar(message: "Could not fetch latests session ${lastSessionFetchResult.message}");
+        //context.showErrorSnackBar(message: "Could not fetch latests session ${lastSessionFetchResult.message}");
       }
     }
     // Stop loading.

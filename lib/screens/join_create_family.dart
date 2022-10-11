@@ -1,4 +1,5 @@
 import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/states/auth_required_state.dart';
 import 'package:Aquecius/widgets/buttons.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class JoinOrCreateFamilyScreen extends StatefulWidget {
   State<JoinOrCreateFamilyScreen> createState() => _JoinOrCreateFamilyScreenState();
 }
 
-class _JoinOrCreateFamilyScreenState extends State<JoinOrCreateFamilyScreen> {
+class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamilyScreen> {
   /// Whether data from the database is being loaded.
   bool isLoading = false;
 

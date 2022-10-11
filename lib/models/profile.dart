@@ -8,6 +8,7 @@ class Profile {
   HairType? hairType;
   HairTexture? hairTexture;
   bool germyWorker;
+  String? family;
 
   Profile(
       {required this.id,
@@ -17,7 +18,8 @@ class Profile {
       this.activityLevel,
       this.hairType,
       this.hairTexture,
-      this.germyWorker = false});
+      this.germyWorker = false,
+      this.family});
 
   Profile.fromJson(String id, Map<String, dynamic> json)
       : this.id = id,
@@ -27,7 +29,8 @@ class Profile {
         hairType = json['hair_type'] == null ? null : HairType.fromName(json['hair_type']),
         hairTexture = json['hair_texture'] == null ? null : HairTexture.fromName(json['hair_texture']),
         activityLevel = json['activity_level'] == null ? null : ActivityLevel.fromName(json['activity_level']),
-        germyWorker = json['germy_worker'];
+        germyWorker = json['germy_worker'],
+        family = json['family'];
 
   Map<String, dynamic> toJson() {
     return {
@@ -39,6 +42,7 @@ class Profile {
       "phone": phone,
       "updated_at": updatedAt.toIso8601String(),
       "germy_worker": germyWorker,
+      "family": family,
     };
   }
 }

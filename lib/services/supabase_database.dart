@@ -48,8 +48,9 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: error == null, data: session, message: response.error?.message);
   }
 
-  static Future<BackendResponse<Family>> getFamilyForUser(String id) async {
-    final response = await SupaBaseService.supabase.from('families').select().contains('members', id).limit(1).single().execute();
+  /// Returns a family based on its invite code.
+  static Future<BackendResponse<Family>> getFamilyByCode(String code) async {
+    final response = await SupaBaseService.supabase.from('families').select().eq('invite_code', code).limit(1).single().execute();
     Family? family;
     dynamic error = response.error;
     if (error == null) {
@@ -71,6 +72,12 @@ class SupaBaseDatabaseService {
   /// Inserts a session in the database.
   static Future<BackendResponse> insertSession(ShowerSession session) async {
     final response = await SupaBaseService.supabase.from('sessions').upsert(session.toJson()).execute();
+    return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
+  }
+
+  /// Creates a random session and inserts it into the database.
+  static Future<BackendResponse> insertFamily(Family family) async {
+    final response = await SupaBaseService.supabase.from('families').upsert(family.toJson()).execute();
     return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
   }
 

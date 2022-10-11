@@ -50,23 +50,15 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
           '/account',
           (route) => false,
         );
+        return;
         //context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
       }
     }
 
-    // Get the family data.
-    final familyFetchResult = await SupaBaseDatabaseService.getFamilyForUser(SupaBaseAuthService.uid!);
-    if (familyFetchResult.isSuccessful) {
-      family = familyFetchResult.data;
-    } else {
-      if (mounted) {
-        // Navigate to the account page to create profile data if no profile data is present.
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/join_or_create_family',
-          (route) => false,
-        );
-        //context.showErrorSnackBar(message: "Could not fetch family ${familyFetchResult.message}");
-      }
+    // Require the user to create/join a family if it hasn't already.
+    if (profile!.family == null) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/join_or_create_family', (route) => false, arguments: profile);
+      return;
     }
 
     // Get the last session data.

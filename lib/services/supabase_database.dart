@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:Aquecius/models/family.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/models/session.dart';
 import 'package:Aquecius/objects/responses.dart';
@@ -11,7 +12,7 @@ class SupaBaseDatabaseService {
   /// Returns a backendResponse.
   /// if backendResponse.isSuccessful, backendResponse.data will be a Profile.
   /// else it will be null, and message will be set to the error message.
-  static Future<BackendResponse> getProfile(String id) async {
+  static Future<BackendResponse<Profile>> getProfile(String id) async {
     final response = await SupaBaseService.supabase.from('profiles').select().eq('id', id).single().execute();
     Profile? profile;
     dynamic error = response.error;
@@ -26,7 +27,7 @@ class SupaBaseDatabaseService {
   }
 
   /// Gets the most recent session from the current user.
-  static Future<BackendResponse> getLastSession() async {
+  static Future<BackendResponse<ShowerSession>> getLastSession() async {
     final response = await SupaBaseService.supabase
         .from('sessions')
         .select()
@@ -45,6 +46,20 @@ class SupaBaseDatabaseService {
       }
     }
     return BackendResponse(isSuccessful: error == null, data: session, message: response.error?.message);
+  }
+
+  static Future<BackendResponse<Family>> getFamilyForUser(String id) async {
+    final response = await SupaBaseService.supabase.from('families').select().contains('members', id).limit(1).single().execute();
+    Family? family;
+    dynamic error = response.error;
+    if (error == null) {
+      try {
+        family = Family.fromJson(response.data);
+      } on TypeError catch (e) {
+        error = "Family corrupted. $e";
+      }
+    }
+    return BackendResponse(isSuccessful: response.error == null, data: family, message: response.error?.message);
   }
 
   /// Updates a profile with id in the database.

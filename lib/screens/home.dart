@@ -1,4 +1,5 @@
 import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/models/family.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/services/supabase_auth.dart';
 import 'package:Aquecius/services/supabase_database.dart';
@@ -24,6 +25,9 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
   /// The profile of the current user.
   Profile? profile;
 
+  /// The family of the current user.
+  Family? family;
+
   /// Whether data from the database is being loaded.
   bool isLoading = true;
 
@@ -41,7 +45,27 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
       profile = profileFetchResult.data;
     } else {
       if (mounted) {
-        context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
+        // Navigate to the account page to create profile data if no profile data is present.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/account',
+          (route) => false,
+        );
+        //context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
+      }
+    }
+
+    // Get the family data.
+    final familyFetchResult = await SupaBaseDatabaseService.getFamilyForUser(SupaBaseAuthService.uid!);
+    if (familyFetchResult.isSuccessful) {
+      family = familyFetchResult.data;
+    } else {
+      if (mounted) {
+        // Navigate to the account page to create profile data if no profile data is present.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/join_or_create_family',
+          (route) => false,
+        );
+        //context.showErrorSnackBar(message: "Could not fetch family ${familyFetchResult.message}");
       }
     }
 

@@ -157,7 +157,9 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
               // Shower summary card
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, "/summary");
+                  if (lastSession != null) {
+                    Navigator.pushNamed(context, "/summary", arguments: lastSession);
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(

@@ -58,3 +58,44 @@ class _HomePageCardState extends State<HomePageCard> {
     );
   }
 }
+
+class BottomCard extends StatelessWidget {
+  final String route;
+  final String image;
+  const BottomCard({
+    super.key,
+    required this.image,
+    required this.route,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = ModalRoute.of(context)?.settings.name == route;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, route);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(22)),
+          color: Theme.of(context).colorScheme.primary.withAlpha(active ? 255 : 120),
+        ),
+        height: 80.sp,
+        width: 80.sp,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                image,
+                width: 43.w,
+                height: 43.h,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

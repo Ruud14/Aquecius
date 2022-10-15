@@ -31,10 +31,39 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
   /// Whether data from the database is being loaded.
   bool isLoading = true;
 
+  /// Last session percentage in/decreases
+  int? consumptionIncreasePercentage;
+  int? durationIncreasePercentage;
+  int? temperatureIncreasePercentage;
+
   @override
   void initState() {
     super.initState();
     fetchData();
+  }
+
+  Future<void> fetchLastSession() async {
+    final lastSessionFetchResult = await SupaBaseDatabaseService.getLastSession();
+    if (lastSessionFetchResult.isSuccessful) {
+      lastSession = lastSessionFetchResult.data;
+      final cons = await SupaBaseDatabaseService.getPastConsumptionAverage(lastSession!);
+      final dur = await SupaBaseDatabaseService.getPastDurationAverage(lastSession!);
+      final temp = await SupaBaseDatabaseService.getPastTemperatureAverage(lastSession!);
+      if (cons.isSuccessful && dur.isSuccessful && temp.isSuccessful) {
+        final averageConsumptionOfLastWeek = cons.data.toDouble();
+        final averageDurationOfLastWeek = int.parse(dur.data.toString().split(":")[1]).toDouble();
+        final averageTemperatureOfLastWeek = temp.data;
+
+        consumptionIncreasePercentage = (((lastSession!.consumption - averageConsumptionOfLastWeek) / averageConsumptionOfLastWeek!) * 100).round();
+        durationIncreasePercentage = (((lastSession!.durationMinutes - averageDurationOfLastWeek) / averageDurationOfLastWeek) * 100).round();
+        temperatureIncreasePercentage =
+            (((lastSession!.averageTemperature - averageTemperatureOfLastWeek!) / averageTemperatureOfLastWeek!) * 100).round();
+      }
+    } else {
+      if (mounted) {
+        //context.showErrorSnackBar(message: "Could not fetch latests session ${lastSessionFetchResult.message}");
+      }
+    }
   }
 
   /// Fetches all necessary data (for this page) from the database.
@@ -62,14 +91,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
     }
 
     // Get the last session data.
-    final lastSessionFetchResult = await SupaBaseDatabaseService.getLastSession();
-    if (lastSessionFetchResult.isSuccessful) {
-      lastSession = lastSessionFetchResult.data;
-    } else {
-      if (mounted) {
-        //context.showErrorSnackBar(message: "Could not fetch latests session ${lastSessionFetchResult.message}");
-      }
-    }
+    await fetchLastSession();
     // Stop loading.
     if (mounted) {
       setState(() {
@@ -89,13 +111,10 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
         context.showErrorSnackBar(message: "Error ${value.message}");
       }
     });
-    SupaBaseDatabaseService.getLastSession().then((value) {
-      if (mounted && value.isSuccessful) {
-        setState(() {
-          lastSession = value.data;
-        });
-      }
-    });
+    await fetchLastSession();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -265,27 +284,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                                       SizedBox(
                                         width: 20.sp,
                                       ),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: const [
-                                          // Consumption percentage
-                                          Text(
-                                            "+20%",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                          // Temperature percentage
-                                          Text(
-                                            "-2%",
-                                            style: TextStyle(color: Colors.green),
-                                          ),
-                                          // Time percentage
-                                          Text(
-                                            "+12%",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ],
-                                      ),
+                                      temperatureIncreasePercentage != null ? generateDifferencesTexts() : const SizedBox(),
                                     ],
                                   ),
                                 ),
@@ -391,6 +390,33 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                 ],
               ),
             ]),
+    );
+  }
+
+  /// Generates the text with weekly differences.
+  Widget generateDifferencesTexts() {
+    const red = Color(0xFFAD0606);
+    const green = Color(0xFF008F17);
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Consumption percentage
+        Text(
+          "${consumptionIncreasePercentage! > 0 ? '+' : ''}$consumptionIncreasePercentage%",
+          style: TextStyle(color: consumptionIncreasePercentage! < 0 ? Colors.green : Colors.red),
+        ),
+        // Temperature percentage
+        Text(
+          "${temperatureIncreasePercentage! > 0 ? '+' : ''}$temperatureIncreasePercentage%",
+          style: TextStyle(color: temperatureIncreasePercentage! < 0 ? Colors.green : Colors.red),
+        ),
+        // Time percentage
+        Text(
+          "${durationIncreasePercentage! > 0 ? '+' : ''}$durationIncreasePercentage%",
+          style: TextStyle(color: durationIncreasePercentage! < 0 ? Colors.green : Colors.red),
+        ),
+      ],
     );
   }
 }

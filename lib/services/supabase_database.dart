@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 import 'package:Aquecius/models/family.dart';
 import 'package:Aquecius/models/profile.dart';
@@ -46,6 +47,45 @@ class SupaBaseDatabaseService {
       }
     }
     return BackendResponse(isSuccessful: error == null, data: session, message: response.error?.message);
+  }
+
+  /// Gets the consumption average of the current user of the week prior the session.startedAt
+  static Future<BackendResponse> getPastConsumptionAverage(ShowerSession session) async {
+    final response = await SupaBaseService.supabase.rpc("get_average_consumption_of_time_prior_to", params: {
+      "user_id": SupaBaseAuthService.uid,
+      "start_time": session.startedAt.toIso8601String(),
+      "end_time": session.startedAt.subtract(const Duration(days: 7)).toIso8601String()
+    }).execute();
+
+    dynamic error = response.error;
+    final data = response.data;
+    return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
+  }
+
+  /// Gets the duration average of the current user of the week prior the session.startedAt
+  static Future<BackendResponse> getPastDurationAverage(ShowerSession session) async {
+    final response = await SupaBaseService.supabase.rpc("get_average_duration_of_time_prior_to", params: {
+      "user_id": SupaBaseAuthService.uid,
+      "start_time": session.startedAt.toIso8601String(),
+      "end_time": session.startedAt.subtract(const Duration(days: 7)).toIso8601String()
+    }).execute();
+
+    dynamic error = response.error;
+    final data = response.data;
+    return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
+  }
+
+  /// Gets the temperature average of the current user of the week prior the session.startedAt
+  static Future<BackendResponse> getPastTemperatureAverage(ShowerSession session) async {
+    final response = await SupaBaseService.supabase.rpc("get_average_temperature_of_time_prior_to", params: {
+      "user_id": SupaBaseAuthService.uid,
+      "start_time": session.startedAt.toIso8601String(),
+      "end_time": session.startedAt.subtract(const Duration(days: 7)).toIso8601String()
+    }).execute();
+
+    dynamic error = response.error;
+    final data = response.data;
+    return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
   }
 
   /// Returns a family based on its invite code.

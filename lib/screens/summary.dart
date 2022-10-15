@@ -1,10 +1,13 @@
+import 'package:Aquecius/constants.dart';
 import 'package:Aquecius/models/session.dart';
+import 'package:Aquecius/services/supabase_database.dart';
 import 'package:Aquecius/widgets/buttons.dart';
 import 'package:Aquecius/widgets/cards.dart';
 import 'package:Aquecius/widgets/nav_bar.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:math';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -15,11 +18,57 @@ class SummaryScreen extends StatefulWidget {
 
 class _SummaryScreenState extends State<SummaryScreen> {
   late ShowerSession session;
+  double? averageConsumptionOfLastWeek;
+  double? averageDurationOfLastWeek;
+  double? averageTemperatureOfLastWeek;
+  int? consumptionIncreasePercentage;
+  int? durationIncreasePercentage;
+  int? temperatureIncreasePercentage;
+  bool triedFetchingAverages = false;
+  Color circleColor = Colors.transparent;
+
+  /// Populate the averages of last week.
+  void getAverageData() async {
+    final cons = await SupaBaseDatabaseService.getPastConsumptionAverage(session);
+    final dur = await SupaBaseDatabaseService.getPastDurationAverage(session);
+    final temp = await SupaBaseDatabaseService.getPastTemperatureAverage(session);
+    if (cons.isSuccessful && dur.isSuccessful && temp.isSuccessful) {
+      averageConsumptionOfLastWeek = cons.data.toDouble();
+      averageDurationOfLastWeek = int.parse(dur.data.toString().split(":")[1]).toDouble();
+      averageTemperatureOfLastWeek = temp.data;
+
+      consumptionIncreasePercentage = (((session.consumption - averageConsumptionOfLastWeek!) / averageConsumptionOfLastWeek!) * 100).round();
+      durationIncreasePercentage = (((session.durationMinutes - averageDurationOfLastWeek!) / averageDurationOfLastWeek!) * 100).round();
+      temperatureIncreasePercentage = (((session.averageTemperature - averageTemperatureOfLastWeek!) / averageTemperatureOfLastWeek!) * 100).round();
+
+      double colorFactor = (consumptionIncreasePercentage! + durationIncreasePercentage! + temperatureIncreasePercentage!) / -100;
+      if (colorFactor > 1) {
+        colorFactor = 1;
+      } else if (colorFactor < -1) {
+        colorFactor = -1;
+      }
+      Color c = Colors.green;
+      if (colorFactor < 0) {
+        c = Colors.red;
+      }
+
+      circleColor = Color.alphaBlend(Colors.orange.withOpacity(0.2), c.withOpacity(colorFactor.abs()));
+      setState(() {});
+    } else {
+      if (mounted) {
+        context.showErrorSnackBar(message: "Could not fetch recent averages");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     /// Get the session from the previous route.
     session = ModalRoute.of(context)!.settings.arguments as ShowerSession;
+    if (!triedFetchingAverages) {
+      triedFetchingAverages = true;
+      getAverageData();
+    }
     return ScrollablePage(
       bottomNavigationBar: const BottomCardsNavigationBar(),
       child: Column(
@@ -71,7 +120,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           // Summary circle
           CircleAvatar(
             radius: 120.sp,
-            backgroundColor: Colors.green,
+            backgroundColor: circleColor,
             child: CircleAvatar(
               radius: 105.sp,
               backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -139,28 +188,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
             ),
           ),
           SizedBox(
-            height: 30.sp,
+            height: 60.sp,
           ),
           // TODO: Change to real differences.
           // Differences from the usual.
-          Text(
-            "20% more water than the week before 💦",
-            style: TextStyle(fontSize: 20.sp, color: const Color(0xFFAD0606)),
-          ),
-          SizedBox(
-            height: 10.sp,
-          ),
-          Text(
-            "1% hotter than the week before 🥵",
-            style: TextStyle(fontSize: 20.sp, color: const Color(0xFF938D01)),
-          ),
-          SizedBox(
-            height: 10.sp,
-          ),
-          Text(
-            "7 min shorter than the week before ⌛",
-            style: TextStyle(fontSize: 20.sp, color: const Color(0xFF008F17)),
-          ),
+          averageConsumptionOfLastWeek == null ? const CircularProgressIndicator() : generateDifferencesTexts(),
 
           SizedBox(
             height: 30.sp,
@@ -187,6 +219,35 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Generates the text with weekly differences.
+  Widget generateDifferencesTexts() {
+    const red = Color(0xFFAD0606);
+    const green = Color(0xFF008F17);
+
+    return Column(
+      children: [
+        Text(
+          "${consumptionIncreasePercentage!.abs()}% ${session.consumption > averageConsumptionOfLastWeek! ? 'more' : 'less'} water than the week before 💦",
+          style: TextStyle(fontSize: 20.sp, color: session.consumption > averageConsumptionOfLastWeek! ? red : green),
+        ),
+        SizedBox(
+          height: 10.sp,
+        ),
+        Text(
+          "${temperatureIncreasePercentage!.abs()}% ${session.averageTemperature > averageTemperatureOfLastWeek! ? 'hotter' : 'colder'} than the week before ${session.averageTemperature > averageTemperatureOfLastWeek! ? '🥵' : '🥶'}",
+          style: TextStyle(fontSize: 20.sp, color: session.averageTemperature > averageTemperatureOfLastWeek! ? red : green),
+        ),
+        SizedBox(
+          height: 10.sp,
+        ),
+        Text(
+          "${durationIncreasePercentage!.abs()}% ${session.durationMinutes > averageDurationOfLastWeek! ? 'longer' : 'shorter'} than the week before ⌛",
+          style: TextStyle(fontSize: 20.sp, color: session.durationMinutes > averageDurationOfLastWeek! ? red : green),
+        ),
+      ],
     );
   }
 }

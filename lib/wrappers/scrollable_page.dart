@@ -16,7 +16,7 @@ class ScrollablePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hPadding = 12 + 35.sp;
+    final hPadding = 12 + 20.sp;
     final vPadding = 18 + 25.sp;
 
     return Container(

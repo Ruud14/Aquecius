@@ -199,7 +199,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
           // Motivational thingy
           Text(
-            "Decrease your shower time by 1 more minute and you’ll beat Alice! 🏆",
+            "(TEMP) Decrease your shower time by 1 more minute and you’ll beat Alice! 🏆",
             style: TextStyle(fontSize: 15.sp),
             textAlign: TextAlign.center,
           ),

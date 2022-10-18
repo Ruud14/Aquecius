@@ -29,6 +29,9 @@ flutter:
     - assets/images/time.png
     - assets/images/flag.png
     - assets/images/waterdrop.png
+    - assets/images/trophy1.png
+    - assets/images/trophy2.png
+    - assets/images/trophy3.png
   fonts:
     - family: Lato
       fonts:

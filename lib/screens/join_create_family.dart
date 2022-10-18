@@ -152,7 +152,7 @@ class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamil
                     SizedBox(
                       height: 20.h,
                     ),
-                    PurpleButton(
+                    CustomRoundedButton(
                       text: "Setup shower",
                       onPressed: setupShowerButtonOnPress,
                       extraHorizontalPadding: 40,
@@ -186,7 +186,7 @@ class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamil
                     SizedBox(
                       height: 20.h,
                     ),
-                    PurpleButton(
+                    CustomRoundedButton(
                       text: "Join family",
                       onPressed: joinFamilyButtonOnPress,
                       extraHorizontalPadding: 40,

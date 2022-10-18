@@ -159,7 +159,7 @@ class _LoginScreenState extends AuthState<LoginScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              PurpleButton(
+              CustomRoundedButton(
                 extraHorizontalPadding: 20,
                 onPressed: isLoading
                     ? null
@@ -174,7 +174,7 @@ class _LoginScreenState extends AuthState<LoginScreen> {
                       },
                 text: isLoading ? 'Loading' : 'Login',
               ),
-              PurpleButton(
+              CustomRoundedButton(
                 extraHorizontalPadding: 20,
                 onPressed: isLoading
                     ? null

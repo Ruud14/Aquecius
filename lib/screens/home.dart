@@ -340,7 +340,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                       ],
                     ),
                   ),
-                  const PurpleButton(text: "Details"),
+                  const CustomRoundedButton(text: "Details"),
                 ],
               ),
               SizedBox(

@@ -326,7 +326,7 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                 ),
                 // Save button
                 Center(
-                  child: PurpleButton(
+                  child: CustomRoundedButton(
                     text: "Save",
                     onPressed: () {
                       updateProfile().then((value) {
@@ -339,6 +339,47 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                     extraHorizontalPadding: 40,
                   ),
                 ),
+                isInitialSetup
+                    ? const SizedBox()
+                    : Center(
+                        child: CustomRoundedButton(
+                          text: "Leave family",
+                          color: Colors.red,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                backgroundColor: Theme.of(context).colorScheme.secondary,
+                                title: const Text(
+                                  'Are you sure you want to leave your family?',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                content: const Text('Your family might be sad because of your departure. Be warned!',
+                                    style: TextStyle(color: Colors.white)),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel', style: TextStyle(color: Colors.green)),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      // Leave the family.
+                                      profile!.family = null;
+                                      final result = await updateProfile();
+                                      Navigator.pop(context);
+                                      if (result == true) {
+                                        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
+                                      }
+                                    },
+                                    child: const Text('Leave anyway', style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          extraHorizontalPadding: 40,
+                        ),
+                      ),
               ],
             ),
     );

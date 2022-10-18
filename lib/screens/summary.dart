@@ -207,7 +207,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
             height: 60.sp,
           ),
           // Save button
-          PurpleButton(
+          CustomRoundedButton(
             text: "Share progress",
             onPressed: () {
               // TODO: Add session sharing

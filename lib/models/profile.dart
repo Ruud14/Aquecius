@@ -9,17 +9,20 @@ class Profile {
   HairTexture? hairTexture;
   bool germyWorker;
   String? family;
+  String inviteCode;
 
-  Profile(
-      {required this.id,
-      required this.username,
-      required this.updatedAt,
-      this.phone,
-      this.activityLevel,
-      this.hairType,
-      this.hairTexture,
-      this.germyWorker = false,
-      this.family});
+  Profile({
+    required this.id,
+    required this.username,
+    required this.updatedAt,
+    this.phone,
+    this.activityLevel,
+    this.hairType,
+    this.hairTexture,
+    this.germyWorker = false,
+    required this.inviteCode,
+    this.family,
+  });
 
   Profile.fromJson(String id, Map<String, dynamic> json)
       : this.id = id,
@@ -30,6 +33,7 @@ class Profile {
         hairTexture = json['hair_texture'] == null ? null : HairTexture.fromName(json['hair_texture']),
         activityLevel = json['activity_level'] == null ? null : ActivityLevel.fromName(json['activity_level']),
         germyWorker = json['germy_worker'],
+        inviteCode = json['invite_code'],
         family = json['family'];
 
   Map<String, dynamic> toJson() {
@@ -42,6 +46,7 @@ class Profile {
       "phone": phone,
       "updated_at": updatedAt.toIso8601String(),
       "germy_worker": germyWorker,
+      "invite_code": inviteCode,
       "family": family,
     };
   }

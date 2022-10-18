@@ -23,6 +23,9 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   /// username textfield controller.
   final usernameController = TextEditingController();
 
+  /// inviteCode textfield controller.
+  final inviteCodeController = TextEditingController();
+
   /// Whether data from the database is being loaded.
   bool isLoading = true;
 
@@ -55,6 +58,7 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
     if (profileFetchResult.isSuccessful) {
       profile = profileFetchResult.data;
       usernameController.text = profile!.username;
+      inviteCodeController.text = profile!.inviteCode;
       if (profile!.activityLevel != null) {
         selectedActivityLevel = profile!.activityLevel!;
       }
@@ -69,7 +73,7 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
     } else {
       // Start the initial setup if the user has no profile.
       isInitialSetup = true;
-      profile = Profile(id: SupaBaseAuthService.uid!, username: "", updatedAt: DateTime.now());
+      profile = Profile(id: SupaBaseAuthService.uid!, username: "", updatedAt: DateTime.now(), inviteCode: "");
     }
     setState(() {
       isLoading = false;
@@ -84,12 +88,18 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
       context.showErrorSnackBar(message: "Please enter a username");
       return false;
     }
+    // Check for valid input.
+    if (inviteCodeController.text.isEmpty) {
+      context.showErrorSnackBar(message: "Please enter a friend invite code");
+      return false;
+    }
 
     setState(() {
       isLoading = true;
     });
 
     profile!.username = usernameController.text;
+    profile!.inviteCode = inviteCodeController.text;
     profile!.updatedAt = DateTime.now();
     profile!.activityLevel = selectedActivityLevel;
     profile!.hairType = selectedHairType;
@@ -122,6 +132,7 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
   @override
   void dispose() {
     usernameController.dispose();
+    inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -192,6 +203,32 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                 // Username textfield
                 CustomTextField(
                   controller: usernameController,
+                ),
+                SizedBox(
+                  height: 30.h,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: const [
+                    Text(
+                      "Invite code",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Code with which friends can add you!",
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                // Username textfield
+                CustomTextField(
+                  controller: inviteCodeController,
                 ),
                 SizedBox(
                   height: 30.h,

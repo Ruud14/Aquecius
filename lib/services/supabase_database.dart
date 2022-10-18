@@ -192,7 +192,8 @@ class SupaBaseDatabaseService {
     // Random number generator.
     Random _rnd = Random();
 
-    DateTime startTime = DateTime.now().subtract(Duration(days: _rnd.nextInt(350)));
+    //DateTime startTime = DateTime.now().subtract(Duration(days: _rnd.nextInt(350)));
+    DateTime startTime = DateTime.now();
     DateTime endTime = startTime.add(Duration(minutes: 3 + _rnd.nextInt(30)));
 
     List<double> temperatures = [];

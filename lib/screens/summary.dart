@@ -188,7 +188,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
             ),
           ),
           SizedBox(
-            height: 60.sp,
+            height: 40.sp,
           ),
           // TODO: Change to real differences.
           // Differences from the usual.
@@ -229,6 +229,13 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
     return Column(
       children: [
+        Text(
+          "${session.points} points earned!",
+          style: TextStyle(fontSize: 20.sp, color: Colors.yellow),
+        ),
+        SizedBox(
+          height: 20.sp,
+        ),
         Text(
           "${consumptionIncreasePercentage!.abs()}% ${session.consumption > averageConsumptionOfLastWeek! ? 'more' : 'less'} water than the week before 💦",
           style: TextStyle(fontSize: 20.sp, color: session.consumption > averageConsumptionOfLastWeek! ? red : green),

@@ -340,7 +340,12 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                       ],
                     ),
                   ),
-                  const CustomRoundedButton(text: "Details"),
+                  CustomRoundedButton(
+                    text: "Details",
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/statistics");
+                    },
+                  ),
                 ],
               ),
               SizedBox(

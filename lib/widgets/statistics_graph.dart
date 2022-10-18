@@ -22,10 +22,10 @@ class _StatisticsGraphState extends State<StatisticsGraph> {
   @override
   Widget build(BuildContext context) {
     final graphColor = widget.kind == "Temperature"
-        ? Colors.red
+        ? const Color.fromARGB(255, 202, 45, 24)
         : widget.kind == "Time"
             ? Colors.green
-            : Theme.of(context).colorScheme.secondary;
+            : Theme.of(context).colorScheme.primary;
     final now = DateTime.now();
     final durationPeriodStart = (widget.period == "Week"
         ? now.subtract(const Duration(days: 7))

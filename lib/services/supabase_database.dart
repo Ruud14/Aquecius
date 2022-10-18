@@ -206,6 +206,7 @@ class SupaBaseDatabaseService {
         endedAt: endTime,
         consumption: _rnd.nextInt(120).toDouble(),
         temperatures: temperatures,
+        points: _rnd.nextInt(200),
         userId: SupaBaseAuthService.uid!);
 
     return await insertSession(session);

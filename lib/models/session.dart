@@ -6,6 +6,7 @@ class ShowerSession {
   double consumption;
   List<double> temperatures;
   String userId;
+  int points;
 
   ShowerSession({
     required this.id,
@@ -14,6 +15,7 @@ class ShowerSession {
     required this.consumption,
     required this.userId,
     required this.temperatures,
+    required this.points,
   });
 
   ShowerSession.fromJson(Map<String, dynamic> json)
@@ -22,6 +24,7 @@ class ShowerSession {
         endedAt = DateTime.parse(json['ended_at']),
         consumption = json['consumption'].toDouble(),
         temperatures = List<double>.from(json['temperatures']),
+        points = json['points'],
         userId = json['user_id'];
 
   Map<String, dynamic> toJson() {
@@ -30,6 +33,7 @@ class ShowerSession {
       "ended_at": endedAt.toIso8601String(),
       "consumption": consumption,
       "temperatures": temperatures,
+      "points": points,
       "user_id": userId,
     };
   }

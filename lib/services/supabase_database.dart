@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:Aquecius/models/family.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/models/session.dart';
+import 'package:Aquecius/objects/datestat.dart';
 import 'package:Aquecius/objects/responses.dart';
 import 'package:Aquecius/services/supabase_auth.dart';
 import 'package:Aquecius/services/supabase_general.dart';
@@ -88,6 +89,71 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
   }
 
+  /// Get the data for the statistics graph.
+  static Future<BackendResponse> getGraphData({required String kind, required String period}) async {
+    // Create period of the query.
+    final now = DateTime.now();
+    final after = (period == "Week"
+            ? now.subtract(const Duration(days: 7))
+            : period == "Month"
+                ? DateTime(now.year, now.month - 1, now.day)
+                : DateTime(now.year - 1, now.month, now.day))
+        .toIso8601String();
+
+    final List<DateStat> data = [];
+    String? error;
+
+    // Create kind of the query.
+    if (kind == "Consumption") {
+      final response = await SupaBaseService.supabase
+          .from('sessions')
+          .select('''started_at, consumption''')
+          .eq('user_id', SupaBaseAuthService.uid!)
+          .gt('started_at', after)
+          .execute();
+      if (response.error == null) {
+        for (final x in response.data) {
+          data.add(DateStat(dateTime: DateTime.parse(x['started_at']), stat: x['consumption'].toDouble()));
+        }
+      } else {
+        error = response.error!.message;
+      }
+    } else if (kind == "Temperature") {
+      final response = await SupaBaseService.supabase
+          .from('sessions')
+          .select('''started_at, temperatures''')
+          .eq('user_id', SupaBaseAuthService.uid!)
+          .gt('started_at', after)
+          .execute();
+
+      if (response.error == null) {
+        for (final x in response.data) {
+          data.add(DateStat(dateTime: DateTime.parse(x['started_at']), stat: x['temperatures'].reduce((a, b) => a + b) / x['temperatures'].length));
+        }
+      } else {
+        error = response.error!.message;
+      }
+    } else if (kind == "Time") {
+      final response = await SupaBaseService.supabase
+          .from('sessions')
+          .select('''started_at, ended_at''')
+          .eq('user_id', SupaBaseAuthService.uid!)
+          .gt('started_at', after)
+          .execute();
+      if (response.error == null) {
+        for (final x in response.data) {
+          data.add(DateStat(
+              dateTime: DateTime.parse(x['started_at']),
+              stat: DateTime.parse(x['ended_at']).difference(DateTime.parse(x['started_at'])).inSeconds / 60));
+        }
+      } else {
+        error = response.error!.message;
+      }
+    }
+
+    return BackendResponse(isSuccessful: error == null, data: data, message: error);
+  }
+
   /// Returns a family based on its invite code.
   static Future<BackendResponse<Family>> getFamilyByCode(String code) async {
     final response = await SupaBaseService.supabase.from('families').select().eq('invite_code', code).limit(1).single().execute();
@@ -126,7 +192,7 @@ class SupaBaseDatabaseService {
     // Random number generator.
     Random _rnd = Random();
 
-    DateTime startTime = DateTime.now();
+    DateTime startTime = DateTime.now().subtract(Duration(days: _rnd.nextInt(350)));
     DateTime endTime = startTime.add(Duration(minutes: 3 + _rnd.nextInt(30)));
 
     List<double> temperatures = [];

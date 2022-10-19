@@ -51,7 +51,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
       final temp = await SupaBaseDatabaseService.getPastTemperatureAverage(lastSession!);
       if (cons.isSuccessful && dur.isSuccessful && temp.isSuccessful) {
         final averageConsumptionOfLastWeek = cons.data.toDouble();
-        final averageDurationOfLastWeek = int.parse(dur.data.toString().split(":")[1]).toDouble();
+        final averageDurationOfLastWeek = dur.data;
         final averageTemperatureOfLastWeek = temp.data;
 
         consumptionIncreasePercentage = (((lastSession!.consumption - averageConsumptionOfLastWeek) / averageConsumptionOfLastWeek!) * 100).round();

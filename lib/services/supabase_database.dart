@@ -88,7 +88,8 @@ class SupaBaseDatabaseService {
 
     dynamic error = response.error;
     final data = response.data;
-    return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
+    return BackendResponse(
+        isSuccessful: error == null && data != null, data: int.parse(data.toString().split(":")[1]).toDouble(), message: response.error?.message);
   }
 
   /// Gets the temperature average of the sessions user of the 2 weeks prior the session.startedAt
@@ -195,18 +196,14 @@ class SupaBaseDatabaseService {
       return BackendResponse(isSuccessful: false, message: usersResponse.error!.message);
     }
     List<UserStat> data = [];
-
+    String ownID = SupaBaseAuthService.uid ?? "";
     // Get the average data for every user.
     for (int i = 0; i < usersResponse.data.length; i++) {
+      final id = usersResponse.data[i]['id'];
+      final username = usersResponse.data[i]['username'];
       // This is a bad hacky workaround.
-      ShowerSession tempSession = ShowerSession(
-          id: "",
-          startedAt: DateTime.now(),
-          endedAt: DateTime.now(),
-          consumption: 0,
-          userId: usersResponse.data[i]['id'],
-          temperatures: [],
-          points: 0);
+      ShowerSession tempSession =
+          ShowerSession(id: "", startedAt: DateTime.now(), endedAt: DateTime.now(), consumption: 0, userId: id, temperatures: [], points: 0);
       BackendResponse? result;
       if (kind == "Consumption") {
         result = await getPastConsumptionAverage(tempSession);
@@ -218,7 +215,7 @@ class SupaBaseDatabaseService {
         result = await getPastPointsAverage(tempSession);
       }
       if (result != null && result.isSuccessful) {
-        data.add(UserStat(username: usersResponse.data[i]['username'], stat: result.data.toDouble()));
+        data.add(UserStat(username: id == ownID ? "You ($username)" : username, stat: result.data.toDouble()));
       }
     }
     // Sort the data.

@@ -34,7 +34,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
     final temp = await SupaBaseDatabaseService.getPastTemperatureAverage(session);
     if (cons.isSuccessful && dur.isSuccessful && temp.isSuccessful) {
       averageConsumptionOfLastWeek = cons.data.toDouble();
-      averageDurationOfLastWeek = int.parse(dur.data.toString().split(":")[1]).toDouble();
+      averageDurationOfLastWeek = dur.data;
       averageTemperatureOfLastWeek = temp.data;
 
       consumptionIncreasePercentage = (((session.consumption - averageConsumptionOfLastWeek!) / averageConsumptionOfLastWeek!) * 100).round();

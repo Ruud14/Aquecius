@@ -1,4 +1,8 @@
+import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/objects/userstat.dart';
+import 'package:Aquecius/services/supabase_database.dart';
 import 'package:Aquecius/widgets/dropdowns.dart';
+import 'package:Aquecius/widgets/leaderboard_tile.dart';
 import 'package:Aquecius/widgets/nav_bar.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';
@@ -13,45 +17,34 @@ class LeaderBoardScreen extends StatefulWidget {
 
 class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
   String selectedKind = "Consumption";
-  String selectedGroup = "Friends";
+  String selectedGroup = "All";
+  // Data for the leaderBoard.
+  List<UserStat>? data;
+
+  // Populates 'data' with data from the backend.
+  void getLeaderBoardData() async {
+    final dataFetchResult = await SupaBaseDatabaseService.getLeaderBoardData(kind: selectedKind, group: selectedGroup);
+    if (dataFetchResult.isSuccessful) {
+      if (mounted) {
+        setState(() {
+          data = dataFetchResult.data;
+        });
+      }
+    } else {
+      if (mounted) {
+        context.showErrorSnackBar(message: "Could not load leaderboard data: " + dataFetchResult.message.toString());
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    getLeaderBoardData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    Widget thingy = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(22)),
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 15,
-              child: Text("4"),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Text(
-              "Some other name",
-              style: TextStyle(color: Colors.white, fontSize: 17.sp),
-            ),
-            const Expanded(child: SizedBox()),
-            Text(
-              "50L",
-              style: TextStyle(color: Colors.white, fontSize: 17.sp),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-          ],
-        ),
-      ),
-    );
-
     return ScrollablePage(
       bottomNavigationBar: BottomCardsNavigationBar(),
       child: Column(
@@ -94,7 +87,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
               SizedBox(
                 width: 190.sp,
                 child: CustomDropdown(
-                  items: <String>['Consumption', 'Temperature', 'Time'].map((String value) {
+                  items: <String>['Points', 'Consumption', 'Temperature', 'Time'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -109,16 +102,18 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                     if (value != null) {
                       setState(() {
                         selectedKind = value;
+                        data = null;
                       });
+                      getLeaderBoardData();
                     }
                   },
                 ),
               ),
-              // HairTexture dropdown
+              // Group dropdown
               SizedBox(
                 width: 190.sp,
                 child: CustomDropdown(
-                  items: <String>['Friends', 'Family'].map((String value) {
+                  items: <String>['All', 'Family'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -133,7 +128,9 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                     if (value != null) {
                       setState(() {
                         selectedGroup = value;
+                        data = null;
                       });
+                      getLeaderBoardData();
                     }
                   },
                 ),
@@ -143,77 +140,81 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
           SizedBox(
             height: 25.sp,
           ),
-          // Trophy row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50.sp,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    child: Image.asset(
-                      "assets/images/trophy2.png",
-                      width: 90.sp,
+          data == null
+              ? const CircularProgressIndicator()
+              :
+              // Trophy row
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50.sp,
+                          backgroundColor: data!.length > 1 ? Theme.of(context).colorScheme.secondary : Colors.transparent,
+                          child: data!.length > 1
+                              ? Image.asset(
+                                  "assets/images/trophy2.png",
+                                  width: 90.sp,
+                                )
+                              : const SizedBox(),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(data!.length > 1 ? data![1].username : ""),
+                        Text(data!.length > 1 ? data![1].stat.toStringAsFixed(1) : ""),
+                      ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text("Ava Gabriel"),
-                  Text("45 L"),
-                ],
-              ),
-              Column(
-                children: [
-                  CircleAvatar(
-                    radius: 70.sp,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    child: Image.asset(
-                      "assets/images/trophy1.png",
-                      width: 135.sp,
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 70.sp,
+                          backgroundColor: data!.length > 0 ? Theme.of(context).colorScheme.secondary : Colors.transparent,
+                          child: data!.length > 0
+                              ? Image.asset(
+                                  "assets/images/trophy1.png",
+                                  width: 135.sp,
+                                )
+                              : const SizedBox(),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(data!.length > 0 ? data![0].username : ""),
+                        Text(data!.length > 0 ? data![0].stat.toStringAsFixed(1) : ""),
+                      ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text("Ava Gabriel"),
-                  Text("45 L"),
-                ],
-              ),
-              Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50.sp,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    child: Image.asset("assets/images/trophy3.png", width: 90.sp),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text("Ava Gabriel"),
-                  Text("45 L"),
-                ],
-              )
-            ],
-          ),
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50.sp,
+                          backgroundColor: data!.length > 2 ? Theme.of(context).colorScheme.secondary : Colors.transparent,
+                          child: data!.length > 2
+                              ? Image.asset(
+                                  "assets/images/trophy3.png",
+                                  width: 90.sp,
+                                )
+                              : const SizedBox(),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(data!.length > 2 ? data![2].username : ""),
+                        Text(data!.length > 2 ? data![2].stat.toStringAsFixed(1) : ""),
+                      ],
+                    )
+                  ],
+                ),
           SizedBox(
             height: 20.h,
           ),
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
-          thingy,
+          data != null && data!.length > 3
+              ? Column(
+                  children: data!.sublist(3).map((e) => LeaderBoardTile(stat: e, index: data!.indexOf(e))).toList(),
+                )
+              : const SizedBox()
         ],
       ),
     );

@@ -5,8 +5,10 @@ import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/models/session.dart';
 import 'package:Aquecius/objects/datestat.dart';
 import 'package:Aquecius/objects/responses.dart';
+import 'package:Aquecius/objects/userstat.dart';
 import 'package:Aquecius/services/supabase_auth.dart';
 import 'package:Aquecius/services/supabase_general.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service for database related Supabase stuff.
 class SupaBaseDatabaseService {
@@ -50,10 +52,23 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: error == null, data: session, message: response.error?.message);
   }
 
-  /// Gets the consumption average of the current user of the 2 weeks prior the session.startedAt
+  /// Gets the points average of the sessions user of the 2 weeks prior the session.startedAt
+  static Future<BackendResponse> getPastPointsAverage(ShowerSession session) async {
+    final response = await SupaBaseService.supabase.rpc("get_average_points_of_time_prior_to", params: {
+      "user_id": session.userId,
+      "start_time": session.startedAt.toIso8601String(),
+      "end_time": session.startedAt.subtract(const Duration(days: 14)).toIso8601String()
+    }).execute();
+
+    dynamic error = response.error;
+    final data = response.data;
+    return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
+  }
+
+  /// Gets the consumption average of the sessions user of the 2 weeks prior the session.startedAt
   static Future<BackendResponse> getPastConsumptionAverage(ShowerSession session) async {
     final response = await SupaBaseService.supabase.rpc("get_average_consumption_of_time_prior_to", params: {
-      "user_id": SupaBaseAuthService.uid,
+      "user_id": session.userId,
       "start_time": session.startedAt.toIso8601String(),
       "end_time": session.startedAt.subtract(const Duration(days: 14)).toIso8601String()
     }).execute();
@@ -63,10 +78,10 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
   }
 
-  /// Gets the duration average of the current user of the 2 weeks prior the session.startedAt
+  /// Gets the duration average of the sessions user of the 2 weeks prior the session.startedAt
   static Future<BackendResponse> getPastDurationAverage(ShowerSession session) async {
     final response = await SupaBaseService.supabase.rpc("get_average_duration_of_time_prior_to", params: {
-      "user_id": SupaBaseAuthService.uid,
+      "user_id": session.userId,
       "start_time": session.startedAt.toIso8601String(),
       "end_time": session.startedAt.subtract(const Duration(days: 14)).toIso8601String()
     }).execute();
@@ -76,10 +91,10 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: error == null && data != null, data: data, message: response.error?.message);
   }
 
-  /// Gets the temperature average of the current user of the 2 weeks prior the session.startedAt
+  /// Gets the temperature average of the sessions user of the 2 weeks prior the session.startedAt
   static Future<BackendResponse> getPastTemperatureAverage(ShowerSession session) async {
     final response = await SupaBaseService.supabase.rpc("get_average_temperature_of_time_prior_to", params: {
-      "user_id": SupaBaseAuthService.uid,
+      "user_id": session.userId,
       "start_time": session.startedAt.toIso8601String(),
       "end_time": session.startedAt.subtract(const Duration(days: 14)).toIso8601String()
     }).execute();
@@ -152,6 +167,64 @@ class SupaBaseDatabaseService {
     }
 
     return BackendResponse(isSuccessful: error == null, data: data, message: error);
+  }
+
+  /// Returns data to be displayed on the leaderBoard
+  /// This is done in quite a bad way, but I did not have more time...
+  /// Ideally we'd want to send one request and have the server return all the data at once.
+  static Future<BackendResponse<List<UserStat>>> getLeaderBoardData({required String kind, required String group}) async {
+    // Get all user uids to get data for.
+
+    PostgrestResponse usersResponse;
+    if (group == "Family") {
+      // Get our own family id.
+      final familyIDResponse =
+          await SupaBaseService.supabase.from('profiles').select('family').eq('id', SupaBaseAuthService.uid).limit(1).single().execute();
+      if (familyIDResponse.error != null) {
+        return BackendResponse(isSuccessful: false, message: familyIDResponse.error!.message);
+      }
+      print("FAMILY ID: " + familyIDResponse.data['family'].toString());
+      usersResponse =
+          await SupaBaseService.supabase.from('profiles').select('''id, username''').eq('family', familyIDResponse.data['family']).execute();
+      print("USERS: " + usersResponse.data.toString());
+    } else {
+      usersResponse = await SupaBaseService.supabase.from('profiles').select('''id, username''').execute();
+    }
+
+    if (usersResponse.error != null) {
+      return BackendResponse(isSuccessful: false, message: usersResponse.error!.message);
+    }
+    List<UserStat> data = [];
+
+    // Get the average data for every user.
+    for (int i = 0; i < usersResponse.data.length; i++) {
+      // This is a bad hacky workaround.
+      ShowerSession tempSession = ShowerSession(
+          id: "",
+          startedAt: DateTime.now(),
+          endedAt: DateTime.now(),
+          consumption: 0,
+          userId: usersResponse.data[i]['id'],
+          temperatures: [],
+          points: 0);
+      BackendResponse? result;
+      if (kind == "Consumption") {
+        result = await getPastConsumptionAverage(tempSession);
+      } else if (kind == "Temperature") {
+        result = await getPastTemperatureAverage(tempSession);
+      } else if (kind == "Time") {
+        result = await getPastDurationAverage(tempSession);
+      } else if (kind == "Points") {
+        result = await getPastPointsAverage(tempSession);
+      }
+      if (result != null && result.isSuccessful) {
+        data.add(UserStat(username: usersResponse.data[i]['username'], stat: result.data.toDouble()));
+      }
+    }
+    // Sort the data.
+    data.sort(((a, b) => a.stat.compareTo(b.stat)));
+    // Reverse the list if showing points.
+    return BackendResponse(isSuccessful: true, data: kind == "Points" ? data.reversed.toList() : data);
   }
 
   /// Returns a family based on its invite code.

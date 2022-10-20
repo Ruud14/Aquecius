@@ -131,7 +131,11 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const FourDotsButton(),
+                  FourDotsButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/setup_device");
+                    },
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushNamed(context, "/account").then((value) {

@@ -126,6 +126,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
       context.showErrorSnackBar(message: "Starting shower failed ${updateResult.message}");
     }
     await fetchFamily();
+    setState(() {});
   }
 
   // Seth family.isShowering to null.
@@ -178,6 +179,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
             TextButton(
               onPressed: () async {
                 await setUserAsShoweringUser();
+                Navigator.pop(context);
               },
               child: const Text('Start anyway', style: TextStyle(color: Colors.red)),
             ),
@@ -186,10 +188,6 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
       );
     } else {
       await setUserAsShoweringUser();
-    }
-
-    if (mounted) {
-      setState(() {});
     }
   }
 

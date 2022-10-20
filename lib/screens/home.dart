@@ -42,6 +42,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
     fetchData();
   }
 
+  // Fetch the last session from the current user form the database.
   Future<void> fetchLastSession() async {
     final lastSessionFetchResult = await SupaBaseDatabaseService.getLastSession();
     if (lastSessionFetchResult.isSuccessful) {
@@ -66,8 +67,18 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
     }
   }
 
+  // Fetch the family from the database and set 'family'.
+  Future<void> fetchFamily() async {
+    final familyFetchResult = await SupaBaseDatabaseService.getFamilyFromID(profile!.family!);
+    if (familyFetchResult.isSuccessful) {
+      family = familyFetchResult.data;
+    } else {
+      context.showErrorSnackBar(message: "Could not fetch family ${familyFetchResult.message}");
+    }
+  }
+
   /// Fetches all necessary data (for this page) from the database.
-  void fetchData() async {
+  Future<void> fetchData() async {
     // Get the user data.
     final profileFetchResult = await SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!);
     if (profileFetchResult.isSuccessful) {
@@ -88,6 +99,9 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
     if (profile!.family == null) {
       Navigator.of(context).pushNamedAndRemoveUntil('/join_or_create_family', (route) => false, arguments: profile);
       return;
+    } else {
+      // Fetch the family.
+      await fetchFamily();
     }
 
     // Get the last session data.
@@ -100,18 +114,80 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
     }
   }
 
+  // Set family.isShowering to the current user id.
+  Future<void> setUserAsShoweringUser() async {
+    print("YES");
+    family!.isShowering = SupaBaseAuthService.uid;
+    print(family!.id);
+    final updateResult = await SupaBaseDatabaseService.updateFamily(family!);
+    if (updateResult.isSuccessful) {
+      context.showSnackBar(message: "Shower session started!");
+    } else {
+      context.showErrorSnackBar(message: "Starting shower failed ${updateResult.message}");
+    }
+    await fetchFamily();
+  }
+
+  // Seth family.isShowering to null.
+  void stopShower() async {
+    family!.isShowering = null;
+    final updateResult = await SupaBaseDatabaseService.updateFamily(family!);
+    if (updateResult.isSuccessful) {
+      context.showSnackBar(message: "Shower session stopped!");
+    } else {
+      context.showErrorSnackBar(message: "Stopping shower failed ${updateResult.message}");
+    }
+    await fetchFamily();
+    setState(() {});
+  }
+
   /// Start a shower session.
   void startShower() async {
     // TODO: Change this.
     // For now we're creating a random session and adding it to the database.
-    await SupaBaseDatabaseService.insertRandomSession().then((value) {
-      if (value.isSuccessful) {
-        context.showSnackBar(message: "Session created");
-      } else {
-        context.showErrorSnackBar(message: "Error ${value.message}");
-      }
-    });
-    await fetchLastSession();
+    // await SupaBaseDatabaseService.insertRandomSession().then((value) {
+    //   if (value.isSuccessful) {
+    //     context.showSnackBar(message: "Session created");
+    //   } else {
+    //     context.showErrorSnackBar(message: "Error ${value.message}");
+    //   }
+    // });
+    // await fetchLastSession();
+
+    // Make sure we're working with a recent version of the family.
+    await fetchFamily();
+    // Check if someone else is showering.
+    if (![SupaBaseAuthService.uid, null].contains(family!.isShowering)) {
+      // Ask user to set him/herself as the showering user.
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          title: const Text(
+            'Someone is already taking a shower...',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+              'One of your family members is already taking a shower. Do you want to cancel their shower session and start yours anyway?',
+              style: TextStyle(color: Colors.white)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.green)),
+            ),
+            TextButton(
+              onPressed: () async {
+                await setUserAsShoweringUser();
+              },
+              child: const Text('Start anyway', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
+      );
+    } else {
+      await setUserAsShoweringUser();
+    }
+
     if (mounted) {
       setState(() {});
     }
@@ -120,6 +196,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return ScrollablePage(
+      onRefresh: fetchData,
       child: isLoading
           ? Center(
               child: CircularProgressIndicator(
@@ -131,11 +208,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  FourDotsButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/setup_device");
-                    },
-                  ),
+                  const FourDotsButton(),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushNamed(context, "/account").then((value) {
@@ -297,21 +370,27 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
                       // Start shower button
                       GestureDetector(
-                        onTap: startShower,
+                        onTap: family!.isShowering == SupaBaseAuthService.uid ? stopShower : startShower,
                         child: Row(
                           children: [
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  "assets/images/shower.png",
-                                  width: 49.sp,
-                                  height: 49.sp,
-                                  color: Colors.white,
-                                ),
-                                const Text(
-                                  "Start",
-                                  style: TextStyle(color: Colors.white),
+                                family!.isShowering == SupaBaseAuthService.uid
+                                    ? Icon(
+                                        Icons.stop_circle_outlined,
+                                        color: Colors.red,
+                                        size: 49.sp,
+                                      )
+                                    : Image.asset(
+                                        "assets/images/shower.png",
+                                        width: 49.sp,
+                                        height: 49.sp,
+                                        color: Colors.white,
+                                      ),
+                                Text(
+                                  family!.isShowering == SupaBaseAuthService.uid ? "Stop" : "Start",
+                                  style: TextStyle(color: family!.isShowering == SupaBaseAuthService.uid ? Colors.red : Colors.white),
                                 )
                               ],
                             ),

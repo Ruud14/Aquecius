@@ -7,11 +7,13 @@ class ScrollablePage extends StatelessWidget {
   final Widget child;
   final AppBar? appBar;
   final Widget? bottomNavigationBar;
+  final Future<void> Function()? onRefresh;
   const ScrollablePage({
     Key? key,
     required this.child,
     this.appBar,
     this.bottomNavigationBar,
+    this.onRefresh,
   }) : super(key: key);
 
   @override
@@ -29,11 +31,14 @@ class ScrollablePage extends StatelessWidget {
           ),
           backgroundColor: Theme.of(context).colorScheme.background,
           appBar: appBar,
-          body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: vPadding, horizontal: hPadding),
-              child: child,
+          body: RefreshIndicator(
+            onRefresh: onRefresh ?? () async {},
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: vPadding, horizontal: hPadding),
+                child: child,
+              ),
             ),
           ),
         ),

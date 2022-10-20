@@ -239,6 +239,21 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: response.error == null, data: family, message: response.error?.message);
   }
 
+  /// Gets a family from the database based on ID.
+  static Future<BackendResponse<Family>> getFamilyFromID(String familyID) async {
+    final response = await SupaBaseService.supabase.from('families').select().eq('id', familyID).limit(1).single().execute();
+    Family? family;
+    dynamic error = response.error;
+    if (error == null) {
+      try {
+        family = Family.fromJson(response.data);
+      } on TypeError catch (e) {
+        error = "Family corrupted. $e";
+      }
+    }
+    return BackendResponse(isSuccessful: response.error == null, data: family, message: response.error?.message);
+  }
+
   /// Updates a profile with id in the database.
   static Future<BackendResponse> updateProfile(Profile profile) async {
     final response = await SupaBaseService.supabase.from('profiles').upsert(profile.toJson()).execute();
@@ -251,9 +266,15 @@ class SupaBaseDatabaseService {
     return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
   }
 
-  /// Creates a random session and inserts it into the database.
+  /// Inserts a family in the database.
   static Future<BackendResponse> insertFamily(Family family) async {
     final response = await SupaBaseService.supabase.from('families').upsert(family.toJson()).execute();
+    return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
+  }
+
+  /// Updates a family in the database.
+  static Future<BackendResponse> updateFamily(Family family) async {
+    final response = await SupaBaseService.supabase.from('families').update(family.toJson()).execute();
     return BackendResponse(isSuccessful: response.error == null, data: response.data, message: response.error?.message);
   }
 

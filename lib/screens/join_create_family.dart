@@ -36,26 +36,27 @@ class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamil
   // TODO: ADD SETTING UP OF A SHOWER.
   // For now this creates a random family of which you are the owner.
   void setupShowerButtonOnPress() async {
-    Random _rnd = Random();
-    final Family family = Family(
-      id: '',
-      creator: SupaBaseAuthService.uid!,
-      inviteCode: "Biefstuk${_rnd.nextInt(999999)}", // Let the user choose this code.
-      isShowering: null,
-    );
-    final familyResult = await SupaBaseDatabaseService.insertFamily(family);
-    if (familyResult.isSuccessful) {
-      // Update the profile of the current user with the family.
-      final successfullyJoinedFamily = await joinFamilyByCode(family.inviteCode);
-      if (successfullyJoinedFamily) {
-        context.showSnackBar(message: "Successfully created and joined family");
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-      } else {
-        context.showErrorSnackBar(message: "Joining family failed");
-      }
-    } else {
-      context.showErrorSnackBar(message: "Could not create family");
-    }
+    Navigator.pushNamed(context, "/setup_device");
+    // Random _rnd = Random();
+    // final Family family = Family(
+    //   id: '',
+    //   creator: SupaBaseAuthService.uid!,
+    //   inviteCode: "Biefstuk${_rnd.nextInt(999999)}", // Let the user choose this code.
+    //   isShowering: null,
+    // );
+    // final familyResult = await SupaBaseDatabaseService.insertFamily(family);
+    // if (familyResult.isSuccessful) {
+    //   // Update the profile of the current user with the family.
+    //   final successfullyJoinedFamily = await joinFamilyByCode(family.inviteCode);
+    //   if (successfullyJoinedFamily) {
+    //     context.showSnackBar(message: "Successfully created and joined family");
+    //     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+    //   } else {
+    //     context.showErrorSnackBar(message: "Joining family failed");
+    //   }
+    // } else {
+    //   context.showErrorSnackBar(message: "Could not create family");
+    // }
   }
 
   // Join a family using the invite_code

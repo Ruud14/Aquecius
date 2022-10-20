@@ -6,6 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
+// TODO:
+// 1.	Connect to device
+// 2.	Create family on local device. (we don’t have internet access)
+// 3.	Send wifi creds and family id to device.
+// 4.	Wait for device to connect to the wifi network. (and you consequently connect back to internet)
+// 5.	Wait for a shower to be created with it’s family id set to the local family id.
+// 6.	Add the family to the database, and add yourself to that family => setup complete.
+
 class SetupDeviceScreen extends StatefulWidget {
   const SetupDeviceScreen({super.key});
 
@@ -23,16 +31,12 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
   void startListeningToScannedResults() async {
     // check platform support and necessary requirements
     final can = await WiFiScan.instance.canGetScannedResults(askPermissions: true);
-    switch (can) {
-      case CanGetScannedResults.yes:
-        // listen to onScannedResultsAvailable stream
-        subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-          // update accessPoints
-          setState(() => accessPoints = results);
-        });
-        // ...
-        break;
-      // ... handle other cases of CanGetScannedResults values
+    if (can == CanGetScannedResults.yes) {
+      // listen to onScannedResultsAvailable stream
+      subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+        // update accessPoints
+        setState(() => accessPoints = results);
+      });
     }
   }
 
@@ -87,7 +91,7 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
           ),
           // Page subtitle
           Text(
-            "Please turn on the device\nand stay near it.",
+            "Please turn on the device and stay near it.\nWait for the device to show up in the list below.",
             style: TextStyle(
               fontSize: 16.sp,
             ),
@@ -100,7 +104,7 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
               ? CircularProgressIndicator()
               : Column(
                   children: accessPoints
-                      .where((element) => element.ssid == ssidToLookFor)
+                      .where((element) => element.ssid.startsWith(ssidToLookFor))
                       .map((e) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Container(
@@ -138,11 +142,12 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
           CustomRoundedButton(
             text: "⟳ Refresh ⟳",
             color: Theme.of(context).colorScheme.primary,
-            onPressed: () {
+            onPressed: () async {
               subscription?.cancel();
               setState(() {
                 accessPoints = [];
               });
+              await Future.delayed(Duration(milliseconds: 500));
               startListeningToScannedResults();
             },
           )

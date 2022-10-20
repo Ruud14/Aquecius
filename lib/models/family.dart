@@ -20,6 +20,7 @@ class Family {
 
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "creator": creator,
       "invite_code": inviteCode,
       "is_showering": isShowering,

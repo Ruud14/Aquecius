@@ -426,7 +426,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                   CustomRoundedButton(
                     text: "Details",
                     onPressed: () {
-                      Navigator.pushNamed(context, "/statistics");
+                      Navigator.pushNamed(context, "/statistics", arguments: "Consumption");
                     },
                   ),
                 ],
@@ -448,7 +448,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                     text: "62 L",
                     subscript: "Past 7 days",
                     onPressed: () {
-                      Navigator.pushNamed(context, "/statistics");
+                      Navigator.pushNamed(context, "/statistics", arguments: "Consumption");
                     },
                   ),
                   HomePageCard(
@@ -456,7 +456,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                     text: "12 min",
                     subscript: "Average",
                     onPressed: () {
-                      Navigator.pushNamed(context, "/statistics");
+                      Navigator.pushNamed(context, "/statistics", arguments: "Time");
                     },
                   ),
                   HomePageCard(
@@ -464,7 +464,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
                     text: "35 °C",
                     subscript: "Average",
                     onPressed: () {
-                      Navigator.pushNamed(context, "/statistics");
+                      Navigator.pushNamed(context, "/statistics", arguments: "Temperature");
                     },
                   ),
                   HomePageCard(

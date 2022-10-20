@@ -62,10 +62,12 @@ class _HomePageCardState extends State<HomePageCard> {
 class BottomCard extends StatelessWidget {
   final String route;
   final String image;
+  final dynamic args;
   const BottomCard({
     super.key,
     required this.image,
     required this.route,
+    this.args,
   });
 
   @override
@@ -74,7 +76,7 @@ class BottomCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, route);
+        Navigator.pushNamed(context, route, arguments: args);
       },
       child: Container(
         decoration: BoxDecoration(

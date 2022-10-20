@@ -6,10 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class Selector extends StatefulWidget {
   final void Function(String) onChanged;
   final List<String> items;
+  final String? initialItem;
   const Selector({
     super.key,
     required this.items,
     required this.onChanged,
+    this.initialItem,
   });
 
   @override
@@ -22,7 +24,7 @@ class _SelectorState extends State<Selector> {
 
   @override
   void initState() {
-    active = widget.items[0];
+    active = widget.initialItem ?? widget.items[0];
     super.initState();
   }
 

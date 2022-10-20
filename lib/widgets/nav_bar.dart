@@ -26,14 +26,17 @@ class BottomCardsNavigationBar extends StatelessWidget {
           BottomCard(
             image: "assets/images/waterdrop.png",
             route: "/statistics",
+            args: "Consumption",
           ),
           BottomCard(
             image: "assets/images/time.png",
             route: "/statistics",
+            args: "Time",
           ),
           BottomCard(
             image: "assets/images/fire.png",
             route: "/statistics",
+            args: "Temperature",
           ),
           BottomCard(
             image: "assets/images/flag.png",

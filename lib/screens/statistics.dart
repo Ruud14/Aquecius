@@ -20,6 +20,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   String kind = "Consumption";
   List<String> periods = ["Week", "Month", "Year"];
   String period = "Week";
+  String? initialKind;
 
   // The actual data.
   List<DateStat>? data;
@@ -46,6 +47,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    /// Get the kind of page to be shown.
+    if (initialKind == null) {
+      initialKind = ModalRoute.of(context)!.settings.arguments as String;
+      if (kinds.contains(initialKind)) {
+        kind = initialKind!;
+      }
+    }
     return ScrollablePage(
       bottomNavigationBar: const BottomCardsNavigationBar(),
       child: Column(
@@ -83,6 +91,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           // Kind selector
           Selector(
+            initialItem: kind,
             items: kinds,
             onChanged: (String value) {
               setState(() {
@@ -97,6 +106,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           // Period selector
           Selector(
+            initialItem: period,
             items: periods,
             onChanged: (String value) {
               setState(() {

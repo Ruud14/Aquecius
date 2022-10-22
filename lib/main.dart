@@ -1,6 +1,7 @@
-import 'package:Aquecius/screens/join_create_family.dart';
+import 'package:Aquecius/screens/join_family.dart';
 import 'package:Aquecius/screens/leaderboard.dart';
 import 'package:Aquecius/screens/setup_device.dart';
+import 'package:Aquecius/screens/wifi_list.dart';
 import 'package:Aquecius/screens/statistics.dart';
 import 'package:Aquecius/screens/summary.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,8 @@ class MyApp extends StatelessWidget {
             '/summary': (_) => const SummaryScreen(),
             '/statistics': (_) => const StatisticsScreen(),
             '/leaderboard': (_) => const LeaderBoardScreen(),
-            '/join_or_create_family': (_) => const JoinOrCreateFamilyScreen(),
+            '/join_family': (_) => const JoinFamilyScreen(),
+            '/wifi_list': (_) => const WifiListScreen(),
             '/setup_device': (_) => const SetupDeviceScreen()
           },
         );

@@ -1,9 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:math';
-
 import 'package:Aquecius/constants.dart';
-import 'package:Aquecius/models/family.dart';
 import 'package:Aquecius/models/profile.dart';
 import 'package:Aquecius/services/supabase_auth.dart';
 import 'package:Aquecius/services/supabase_database.dart';
@@ -12,18 +9,16 @@ import 'package:Aquecius/widgets/buttons.dart';
 import 'package:Aquecius/widgets/textfields.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class JoinOrCreateFamilyScreen extends StatefulWidget {
-  const JoinOrCreateFamilyScreen({super.key});
+class JoinFamilyScreen extends StatefulWidget {
+  const JoinFamilyScreen({super.key});
 
   @override
-  State<JoinOrCreateFamilyScreen> createState() => _JoinOrCreateFamilyScreenState();
+  State<JoinFamilyScreen> createState() => _JoinFamilyScreenState();
 }
 
-class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamilyScreen> {
+class _JoinFamilyScreenState extends AuthRequiredState<JoinFamilyScreen> {
   /// username textfield controller.
   final familyCodeController = TextEditingController();
 
@@ -36,7 +31,7 @@ class _JoinOrCreateFamilyScreenState extends AuthRequiredState<JoinOrCreateFamil
   // TODO: ADD SETTING UP OF A SHOWER.
   // For now this creates a random family of which you are the owner.
   void setupShowerButtonOnPress() async {
-    Navigator.pushNamed(context, "/setup_device");
+    Navigator.pushNamed(context, "/wifi_list");
     // Random _rnd = Random();
     // final Family family = Family(
     //   id: '',

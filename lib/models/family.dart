@@ -1,6 +1,6 @@
 /// Model for family table.
 class Family {
-  String id;
+  String? id;
   String creator;
   String inviteCode;
   String? isShowering;
@@ -19,11 +19,17 @@ class Family {
         isShowering = json['is_showering'];
 
   Map<String, dynamic> toJson() {
-    return {
-      "id": id,
-      "creator": creator,
-      "invite_code": inviteCode,
-      "is_showering": isShowering,
-    };
+    return id == null
+        ? {
+            "creator": creator,
+            "invite_code": inviteCode,
+            "is_showering": isShowering,
+          }
+        : {
+            "id": id,
+            "creator": creator,
+            "invite_code": inviteCode,
+            "is_showering": isShowering,
+          };
   }
 }

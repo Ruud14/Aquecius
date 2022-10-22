@@ -226,7 +226,7 @@ class _AccountScreenState extends AuthRequiredState<AccountScreen> {
                 SizedBox(
                   height: 10.h,
                 ),
-                // Username textfield
+                // Friend invite code textfield
                 CustomTextField(
                   controller: inviteCodeController,
                 ),

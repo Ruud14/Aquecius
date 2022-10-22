@@ -1,18 +1,14 @@
-import 'dart:async';
-
+import 'package:Aquecius/constants.dart';
+import 'package:Aquecius/models/family.dart';
+import 'package:Aquecius/services/supabase_auth.dart';
+import 'package:Aquecius/services/supabase_database.dart';
 import 'package:Aquecius/widgets/buttons.dart';
+import 'package:Aquecius/widgets/textfields.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:wifi_scan/wifi_scan.dart';
-
-// TODO:
-// 1.	Connect to device
-// 2.	Create family on local device. (we don’t have internet access)
-// 3.	Send wifi creds and family id to device.
-// 4.	Wait for device to connect to the wifi network. (and you consequently connect back to internet)
-// 5.	Wait for a shower to be created with it’s family id set to the local family id.
-// 6.	Add the family to the database, and add yourself to that family => setup complete.
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 
 class SetupDeviceScreen extends StatefulWidget {
   const SetupDeviceScreen({super.key});
@@ -22,40 +18,57 @@ class SetupDeviceScreen extends StatefulWidget {
 }
 
 class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
-  // The SSID of the Aquacius devices.
-  String ssidToLookFor = "Aquacius";
-  // initialize accessPoints and subscription
-  List<WiFiAccessPoint> accessPoints = [];
-  StreamSubscription<List<WiFiAccessPoint>>? subscription;
+  late String ssid;
+  late String password;
 
-  void startListeningToScannedResults() async {
-    // check platform support and necessary requirements
-    final can = await WiFiScan.instance.canGetScannedResults(askPermissions: true);
-    if (can == CanGetScannedResults.yes) {
-      // listen to onScannedResultsAvailable stream
-      subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-        // update accessPoints
-        setState(() => accessPoints = results);
-      });
-    }
-  }
+  late Family family;
 
-  @override
-  dispose() {
-    super.dispose();
-    // Stop listening to networks.
-    subscription?.cancel();
-  }
+  String urlToLaunch = "http://google.com";
+
+  /// username textfield controller.
+  final inviteCodeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Listen for nearby networks.
-    startListeningToScannedResults();
+    // Create the family container.
+    family = Family(id: null, creator: SupaBaseAuthService.uid!, inviteCode: '', isShowering: null);
+  }
+
+  // Join a family using the invite_code
+  Future<bool> joinFamilyByCode(String code) async {
+    final profileResult = await SupaBaseDatabaseService.getProfile(SupaBaseAuthService.uid!);
+    if (!profileResult.isSuccessful) {
+      return false;
+    }
+    final profile = profileResult.data;
+    final familyResult = await SupaBaseDatabaseService.getFamilyByCode(code);
+    if (familyResult.isSuccessful) {
+      profile!.family = familyResult.data!.id;
+      final profileResult = await SupaBaseDatabaseService.updateProfile(profile);
+      if (profileResult.isSuccessful) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  // Launch the wifi credentials entering page.
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(Uri.parse(urlToLaunch))) {
+      context.showErrorSnackBar(message: "Could not launch url...");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final networkDetails = ModalRoute.of(context)!.settings.arguments as List<String>;
+    ssid = networkDetails[0];
+    password = networkDetails[1];
+
     return ScrollablePage(
       child: Column(
         children: [
@@ -73,7 +86,7 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
                     size: 36,
                   )),
               Text(
-                "Setup device",
+                "Device setup",
                 style: TextStyle(fontSize: 36.sp, fontWeight: FontWeight.bold),
               ),
               // Transparent icon for equal spacing.
@@ -91,64 +104,68 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
           ),
           // Page subtitle
           Text(
-            "Please turn on the device and stay near it.\nWait for the device to show up in the list below.",
+            "Please enter a unique family invite code for your family. Once the device setup is done family members can enter this to join the family.",
             style: TextStyle(
               fontSize: 16.sp,
             ),
             textAlign: TextAlign.center,
           ),
           SizedBox(
-            height: 20.h,
+            height: 30.h,
           ),
-          accessPoints.isEmpty
-              ? CircularProgressIndicator()
-              : Column(
-                  children: accessPoints
-                      .where((element) => element.ssid.startsWith(ssidToLookFor))
-                      .map((e) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(Radius.circular(22)),
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    e.ssid,
-                                    style: TextStyle(color: Colors.white, fontSize: 17.sp),
-                                  ),
-                                  const Expanded(child: SizedBox()),
-                                  Text(
-                                    "${e.level.toString()}dBm",
-                                    style: TextStyle(color: Colors.white, fontSize: 17.sp),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
+          const Text(
+            "Invite code for family members",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          ),
           SizedBox(
-            height: 20.h,
+            height: 10.h,
+          ),
+          // invite code textfield
+          CustomTextField(
+            controller: inviteCodeController,
+            hintText: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 40.h,
           ),
           CustomRoundedButton(
-            text: "⟳ Refresh ⟳",
-            color: Theme.of(context).colorScheme.primary,
+            text: "Connect to device",
             onPressed: () async {
-              subscription?.cancel();
-              setState(() {
-                accessPoints = [];
-              });
-              await Future.delayed(Duration(milliseconds: 500));
-              startListeningToScannedResults();
+              family.inviteCode = inviteCodeController.text;
+
+              final familyCreationResult = await SupaBaseDatabaseService.insertFamily(family);
+              if (familyCreationResult.isSuccessful) {
+                final successfullyJoinedFamily = await joinFamilyByCode(family.inviteCode);
+                if (successfullyJoinedFamily) {
+                  WiFiForIoTPlugin.connect(
+                    ssid,
+                    password: password,
+                    joinOnce: true,
+                  ).then(
+                    (successfullyConnected) async {
+                      final currentSSID = await WiFiForIoTPlugin.getSSID();
+                      if (successfullyConnected || (currentSSID != null && currentSSID.startsWith("Aquacius"))) {
+                        // Open browser url to enter wifi credentials.
+                        _launchUrl();
+                      } else {
+                        if (mounted) {
+                          context.showErrorSnackBar(message: "Could not connect to device :(");
+                        }
+                      }
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                  );
+                } else {
+                  context.showErrorSnackBar(message: "Could not join family");
+                }
+              } else {
+                if (mounted) {
+                  context.showErrorSnackBar(message: "Could not create family: ${familyCreationResult.message!}");
+                }
+              }
             },
           )
         ],

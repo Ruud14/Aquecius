@@ -60,10 +60,6 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
         temperatureIncreasePercentage =
             (((lastSession!.averageTemperature - averageTemperatureOfLastWeek!) / averageTemperatureOfLastWeek!) * 100).round();
       }
-    } else {
-      if (mounted) {
-        //context.showErrorSnackBar(message: "Could not fetch latests session ${lastSessionFetchResult.message}");
-      }
     }
   }
 
@@ -91,13 +87,12 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
           (route) => false,
         );
         return;
-        //context.showErrorSnackBar(message: "Could not fetch profile ${profileFetchResult.message}");
       }
     }
 
     // Require the user to create/join a family if it hasn't already.
     if (profile!.family == null) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/join_or_create_family', (route) => false, arguments: profile);
+      Navigator.of(context).pushNamedAndRemoveUntil('/join_family', (route) => false, arguments: profile);
       return;
     } else {
       // Fetch the family.
@@ -144,17 +139,6 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
   /// Start a shower session.
   void startShower() async {
-    // TODO: Change this.
-    // For now we're creating a random session and adding it to the database.
-    // await SupaBaseDatabaseService.insertRandomSession().then((value) {
-    //   if (value.isSuccessful) {
-    //     context.showSnackBar(message: "Session created");
-    //   } else {
-    //     context.showErrorSnackBar(message: "Error ${value.message}");
-    //   }
-    // });
-    // await fetchLastSession();
-
     // Make sure we're working with a recent version of the family.
     await fetchFamily();
     // Check if someone else is showering.

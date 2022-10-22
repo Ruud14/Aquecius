@@ -23,8 +23,6 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
 
   late Family family;
 
-  String urlToLaunch = "http://google.com";
-
   /// username textfield controller.
   final inviteCodeController = TextEditingController();
 
@@ -58,7 +56,12 @@ class _SetupDeviceScreenState extends State<SetupDeviceScreen> {
 
   // Launch the wifi credentials entering page.
   Future<void> _launchUrl() async {
-    if (!await launchUrl(Uri.parse(urlToLaunch))) {
+    final uri = Uri(
+      scheme: 'http',
+      queryParameters: {"family": family.id},
+      host: "192.168.4.1",
+    );
+    if (!await launchUrl(uri)) {
       context.showErrorSnackBar(message: "Could not launch url...");
     }
   }

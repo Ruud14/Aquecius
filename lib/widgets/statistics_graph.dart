@@ -56,8 +56,17 @@ class _StatisticsGraphState extends State<StatisticsGraph> {
 
     // Compute the graph scale.
     final stats = averagePerDay.where((element) => element.stat >= 0).map((e) => e.stat);
-    final yMin = (stats.reduce(min) - 1).toDouble();
-    final yMax = (stats.reduce(max) + 1).toDouble();
+
+    double yMin = 0;
+    double yMax = 10;
+
+    if (stats.length == 1 && stats.first > 0) {
+      yMax = stats.first;
+    } else if (stats.length > 1) {
+      yMin = (stats.reduce(min) - 1).toDouble();
+      yMax = (stats.reduce(max) + 1).toDouble();
+    }
+
     const height = 140.0;
     final yScale = height / (yMax - yMin);
 

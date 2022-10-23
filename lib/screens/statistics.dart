@@ -131,7 +131,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           SizedBox(
             height: 30.h,
           ),
-          generateTotalWidget(),
+          (data != null && data!.length >= 2) ? generateTotalWidget() : const SizedBox(),
         ],
       ),
     );

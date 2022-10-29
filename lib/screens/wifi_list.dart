@@ -7,14 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
-// TODO:
-// 1.	Connect to device
-// 2.	Create family on local device. (we don’t have internet access)
-// 3.	Send wifi creds and family id to device.
-// 4.	Wait for device to connect to the wifi network. (and you consequently connect back to internet)
-// 5.	Wait for a shower to be created with it’s family id set to the local family id.
-// 6.	Add the family to the database, and add yourself to that family => setup complete.
-
 class WifiListScreen extends StatefulWidget {
   const WifiListScreen({super.key});
 

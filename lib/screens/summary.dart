@@ -2,7 +2,6 @@ import 'package:Aquecius/constants.dart';
 import 'package:Aquecius/models/session.dart';
 import 'package:Aquecius/services/supabase_database.dart';
 import 'package:Aquecius/widgets/buttons.dart';
-import 'package:Aquecius/widgets/cards.dart';
 import 'package:Aquecius/widgets/nav_bar.dart';
 import 'package:Aquecius/wrappers/scrollable_page.dart';
 import 'package:flutter/material.dart';

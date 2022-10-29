@@ -1,8 +1,5 @@
-import 'package:Aquecius/services/supabase_auth.dart';
-import 'package:Aquecius/services/supabase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:Aquecius/constants.dart';
-import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthState<T extends StatefulWidget> extends SupabaseAuthState<T> {

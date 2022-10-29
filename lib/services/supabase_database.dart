@@ -184,10 +184,8 @@ class SupaBaseDatabaseService {
       if (familyIDResponse.error != null) {
         return BackendResponse(isSuccessful: false, message: familyIDResponse.error!.message);
       }
-      print("FAMILY ID: " + familyIDResponse.data['family'].toString());
       usersResponse =
           await SupaBaseService.supabase.from('profiles').select('''id, username''').eq('family', familyIDResponse.data['family']).execute();
-      print("USERS: " + usersResponse.data.toString());
     } else {
       usersResponse = await SupaBaseService.supabase.from('profiles').select('''id, username''').execute();
     }

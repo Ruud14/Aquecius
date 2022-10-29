@@ -30,7 +30,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final dataFetchResult = await SupaBaseDatabaseService.getGraphData(kind: kind, period: period);
     if (dataFetchResult.isSuccessful) {
       data = dataFetchResult.data;
-      print(data!.map((e) => e.stat));
       if (mounted) {
         setState(() {});
       }

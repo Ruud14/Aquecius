@@ -111,9 +111,7 @@ class _HomeScreenState extends AuthRequiredState<HomeScreen> {
 
   // Set family.isShowering to the current user id.
   Future<void> setUserAsShoweringUser() async {
-    print("YES");
     family!.isShowering = SupaBaseAuthService.uid;
-    print(family!.id);
     final updateResult = await SupaBaseDatabaseService.updateFamily(family!);
     if (updateResult.isSuccessful) {
       context.showSnackBar(message: "Shower session started!");
